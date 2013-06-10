@@ -9,3 +9,6 @@ Plugin URI: http://wordpress.org/extend/plugins/dictator/
 Text Domain: dictator
 Domain Path: /languages
 */
+
+if ( defined( 'WP_CLI' ) && WP_CLI )
+	require_once dirname( __FILE__ ) . '/inc/class-dictator-cli-command.php';
