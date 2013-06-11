@@ -8,7 +8,14 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 	private $state;
 	private $regions = array(
+			'title',
+			'description',
 			'theme_mods',
+		);
+
+	private $option_key_map = array(
+			'title'         => 'blogname',
+			'description'   => 'blogdescription',
 		);
 
 	/**
@@ -109,6 +116,10 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	private function steal_region( $region ) {
 
 		switch ( $region ) {
+			case 'title':
+			case 'description':
+				$this->state[$region] = get_option( $this->option_key_map[$region], '' );
+				break;
 			case 'theme_mods':
 				$current_theme = get_option( 'stylesheet' );
 				$this->state[$region] = get_option( 'theme_mods_' . $current_theme );
@@ -139,6 +150,10 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		}
 
 		switch ( $region ) {
+			case 'title':
+			case 'description':
+				update_option( $this->option_key_map[$region], $this->state[$region] );
+				break;
 			case 'theme_mods':
 				$current_theme = get_option( 'stylesheet' );
 				update_option( 'theme_mods_' . $current_theme, $this->state[$region] );
