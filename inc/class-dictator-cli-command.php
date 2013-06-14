@@ -24,7 +24,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 * @subcommand export-state
 	 * @synopsis <state-file> [--region=<region>]
 	 */
-	public function export_state( $args ) {
+	public function export_state( $args, $assoc_args ) {
 
 		list( $file ) = $args;
 
@@ -48,7 +48,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 * @subcommand impose-state
 	 * @synopsis <state-file> [--region=<region>]
 	 */
-	public function impose_state( $args ) {
+	public function impose_state( $args, $assoc_args ) {
 
 		list( $file ) = $args;
 
