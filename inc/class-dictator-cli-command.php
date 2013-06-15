@@ -117,13 +117,13 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	private function steal_region( $region ) {
 
 		switch ( $region ) {
-			case 'title':
-			case 'description':
-				$this->state[$region] = get_option( $this->option_key_map[$region], '' );
-				break;
 			case 'active_theme':
 				// 'stylesheet' is always the active theme. 'template' can be the parent theme
 				$this->state[$region] = get_option( 'stylesheet' );
+				break;
+			case 'title':
+			case 'description':
+				$this->state[$region] = get_option( $this->option_key_map[$region], '' );
 				break;
 			case 'theme_mods':
 				$current_theme = get_option( 'stylesheet' );
@@ -155,10 +155,6 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		}
 
 		switch ( $region ) {
-			case 'title':
-			case 'description':
-				update_option( $this->option_key_map[$region], $this->state[$region] );
-				break;
 			case 'active_theme':
 				$theme = wp_get_theme( $this->state[$region] );
 				if ( ! $theme->exists() )
@@ -168,6 +164,10 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 					break;
 
 				switch_theme( $theme->get_template(), $theme->get_stylesheet() );
+				break;
+			case 'title':
+			case 'description':
+				update_option( $this->option_key_map[$region], $this->state[$region] );
 				break;
 			case 'theme_mods':
 				$current_theme = get_option( 'stylesheet' );
