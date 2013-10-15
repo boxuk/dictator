@@ -15,3 +15,7 @@ The Dictator controls the State of WordPress
 == Frequently Asked Questions ==
 
 == Changelog ==
+
+## Contribution guidelines ##
+
+see https://github.com/humanmade/dictator/blob/master/CONTRIBUTING.md
