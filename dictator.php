@@ -12,29 +12,10 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 define( 'DICTATOR', true );
 
 /**
- * Auto-load Dictator files
+ * Some files need to be manually loaded
  */
-function dictator_autoloader( $class ) {
+require_once dirname( __FILE__ ) . '/autoload.php';
+require_once dirname( __FILE__ ) . '/php/class-dictator.php';
+require_once dirname( __FILE__ ) . '/php/class-dictator-cli-command.php';
 
-	if ( $class[0] === '\\') {
-		$class = substr( $class, 1 );
-	}
-
-	if ( 0 !== strpos( $class, 'Dictator' ) ) {
-		return;
-	}
-
-	// Turn Dictator\States\State into ./php/states/class-state.php
-	$file_parts = explode( '\\', str_replace( '_', '-', strtolower( $class ) ) );
-	array_shift( $file_parts );
-	$file_name = array_pop( $file_parts );
-	$file_name = 'class-' . $file_name . '.php';
-
-	$file_path = dirname( __FILE__ ) . '/php/' . implode( '/', $file_parts ) . '/' . $file_name;
-	if ( is_file( $file_path ) ) {
-		require $file_path;
-	}
-
-}
-spl_autoload_register( 'dictator_autoloader' );
-
+Dictator::add_state( 'network', '\Dictator\States\Network', 'network.yml' );
