@@ -64,7 +64,7 @@ class Dictator {
 	 * @param string $name Name of the state
 	 * @return bool
 	 */
-	public static function is_valid_state( $state ) {
+	public static function is_valid_state( $name ) {
 
 		if ( self::called_statically() ) {
 			return Dictator::get_instance()->is_valid_state( $name );
