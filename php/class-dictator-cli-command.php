@@ -66,20 +66,9 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 		$yaml = $this->load_state_file( $file );
 
-		if ( empty( $yaml[ 'state' ] )
-			|| ! Dictator::is_valid_state( $yaml[ 'state' ] ) ) {
-			WP_CLI::error( "Incorrect state." );
-		}	
+		$this->validate_state_data( $yaml );
 
-		$schema = Dictator::get_state_schema_obj( $yaml['state'] );
-
-		try {
-			$schema->validate( $yaml );
-		} catch ( NodeValidatorException $e ) {
-			WP_CLI::error( $e->getMessage() );
-		}
-
-		WP_CLI::success( "State schema validates." );
+		WP_CLI::success( "State validates against the schema." );
 
 	}
 
@@ -103,7 +92,29 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		return $yaml;
 	}
 
+	/**
+	 * Validate the provided state file
+	 *
+	 * @param array $yaml Data from the state file
+	 */
+	private function validate_state_data( $yaml ) {
 
+		if ( empty( $yaml[ 'state' ] )
+			|| ! Dictator::is_valid_state( $yaml[ 'state' ] ) ) {
+			WP_CLI::error( "Incorrect state." );
+		}	
+
+		$schema = Dictator::get_state_schema_obj( $yaml['state'] );
+
+		try {
+			$schema->validate( $yaml );
+		} catch ( NodeValidatorException $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
+
+		return true;
+
+	}
 
 }
 
