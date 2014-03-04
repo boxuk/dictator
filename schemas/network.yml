@@ -1,0 +1,42 @@
+root:
+  _type: array
+  _children:
+    state:
+      _type: enum
+      _values:
+        - network
+    sites:
+      _type: prototype
+      _prototype:
+        _type: array
+        _children:
+          title:
+            _type: text
+            _required: false
+          users:
+            _type: prototype
+            _is_required: false
+            _prototype:
+              _type: text
+    users:
+      _type: prototype
+      _prototype:
+        _type: array
+        _children:
+          # Can use 'name' or 'display_name'
+          # interchangably
+          name:
+            _type: text
+            _required: false
+          display_name:
+            _type: text
+            _required: false
+          # Can use 'email' or 'user_email'
+          # interchangably
+          email:
+            _type: text
+            _required: false
+          user_email:
+            _type: text
+            _required: false
+
