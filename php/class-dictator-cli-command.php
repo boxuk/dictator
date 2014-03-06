@@ -62,7 +62,12 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 			$differences = $region_obj->get_differences();
 			foreach( $differences as $slug => $difference ) {
 				$this->show_difference( $slug, $difference );
-				$region_obj->impose( $slug, $difference['dictated'] );
+
+				$to_impose = \Dictator::array_diff_recursive( $difference['dictated'], $difference['actual'] );
+				$ret = $region_obj->impose( $slug, $difference['dictated'] );
+				if ( is_wp_error( $ret ) ) {
+					WP_CLI::warning( $ret->get_error_message() );
+				}
 			}
 
 		}
