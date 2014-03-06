@@ -80,7 +80,6 @@ class Network_Sites extends Region {
 			return $site_result;
 		}
 
-		$actual_site = array();
 		switch_to_blog( $matched_site['blog_id'] );
 		foreach( $this->site_fields as $field ) {
 
