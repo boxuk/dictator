@@ -17,24 +17,6 @@ class Network_Sites extends Region {
 		);
 
 	/**
-	 * Whether or not the current state of the region
-	 * matches the state file
-	 *
-	 * @return bool
-	 */
-	public function is_under_accord() {
-
-		$site_results = $this->get_differences();
-
-		if ( empty( $site_results ) ) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	/**
 	 * Get the differences between declared sites and sites on network
 	 * 
 	 * @return array

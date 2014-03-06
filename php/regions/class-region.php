@@ -29,7 +29,16 @@ abstract class Region {
 	 *
 	 * @return bool
 	 */
-	abstract public function is_under_accord();
+	public function is_under_accord() {
+
+		$results = $this->get_differences();
+		if ( empty( $results ) ) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
 
 	/**
 	 * Get the differences between the state file and WordPress
