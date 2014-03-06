@@ -35,13 +35,6 @@ class Users extends Region {
 	}
 
 	/**
-	 * Impose The Dictator's will on the region
-	 */
-	public function dictate() {
-
-	}
-
-	/**
 	 * Get the difference between the declared user and the actual user
 	 * 
 	 * @param string $user_login

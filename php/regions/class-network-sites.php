@@ -44,13 +44,6 @@ class Network_Sites extends Region {
 	}
 
 	/**
-	 * Impose The Dictator's will on the region
-	 */
-	public function dictate() {
-
-	}
-
-	/**
 	 * Get the difference of the site data to the site on the network
 	 * 
 	 * @param string $site_slug

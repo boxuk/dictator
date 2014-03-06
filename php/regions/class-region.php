@@ -47,9 +47,4 @@ abstract class Region {
 	 */
 	abstract public function get_differences();
 
-	/**
-	 * Impose The Dictator's will on the region
-	 */
-	abstract public function dictate();
-
 }
