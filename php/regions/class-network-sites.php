@@ -78,7 +78,14 @@ class Network_Sites extends Region {
 
 				case 'users':
 
-					// @todo
+					foreach( $single_value as $user_login => $role ) {
+						$user = get_user_by( 'login', $user_login );
+						if ( ! $user ) {
+							continue;
+						}
+
+						add_user_to_blog( (int) $site['blog_id'], $user->ID, $role );
+					}
 
 					break;
 
@@ -130,17 +137,21 @@ class Network_Sites extends Region {
 
 				case 'users':
 
-					$site_users = get_users();
-					$user_logins = wp_list_pluck( $site_users, 'user_login' );
+					$value = array();
 
 					// We only care about users present in our state file
 					if ( ! empty( $site_result['dictated']['users'] ) ) {
 
-						$value = array_intersect( $site_result['dictated']['users'], $user_logins );
+						$site_users = get_users();
+						foreach( $site_users as $site_user ) {
 
-					} else {
+							if ( ! array_key_exists( $site_user->user_login, $site_result['dictated']['users'] ) ) {
+								continue;
+							}
 
-						$value = array();
+							$value[ $site_user->user_login ] = array_shift( $site_user->roles );
+
+						}
 
 					}
 
