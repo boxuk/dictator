@@ -312,10 +312,8 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 		$spaces = ( $this->output_nesting_level * 2 ) + 2;
 		if ( $color && $label ) {
-			$line = \cli\Colors::colorize( "{$color}{$label}{$line}" );
+			$line = \cli\Colors::colorize( "{$color}{$label}{$line}%n" );
 			$spaces = $spaces - 2;
-		} else {
-			$line = \cli\Colors::colorize( "%n{$line}" );
 		}
 		WP_CLI::line( str_pad( ' ', $spaces ) . $line );
 	}
