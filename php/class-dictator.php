@@ -78,6 +78,27 @@ class Dictator {
 
 	}
 
+	/**
+	 * Get the object for a given state
+	 * 
+	 * @param string $name Name of the state
+	 * @param array $yaml Data from the state file
+	 * @return object|false
+	 */
+	public static function get_state_obj( $name, $yaml ) {
+
+		if ( self::called_statically() ) {
+			return Dictator::get_instance()->get_state_obj( $name, $yaml );
+		}
+
+		if ( ! isset( self::$instance->states[ $name ] ) ) {
+			return false;
+		}
+
+		$class = self::$instance->states[ $name ][ 'class' ];
+
+		return new $class( $yaml );
+	}
 
 	/**
 	 * Get the schema object for a state
