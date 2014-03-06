@@ -1,3 +1,6 @@
 [submodule "lib/MetaYaml"]
 	path = lib/MetaYaml
 	url = git@github.com:romaricdrigon/MetaYaml.git
+[submodule "lib/ramsey/array_column"]
+	path = lib/ramsey/array_column
+	url = git@github.com:ramsey/array_column.git
