@@ -35,6 +35,18 @@ class Users extends Region {
 	}
 
 	/**
+	 * Impose some state data onto a region
+	 * 
+	 * @param string $key User login
+	 * @param array $value User's data
+	 * @return true|WP_Error
+	 */
+	public function impose( $key, $value ) {
+
+
+	}
+
+	/**
 	 * Get the difference between the declared user and the actual user
 	 * 
 	 * @param string $user_login

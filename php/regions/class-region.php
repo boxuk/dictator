@@ -41,6 +41,17 @@ abstract class Region {
 	}
 
 	/**
+	 * Impose some data onto the region
+	 * How the data is interpreted depends
+	 * on the region
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return true|WP_Error
+	 */
+	abstract public function impose( $key, $value );
+
+	/**
 	 * Get the differences between the state file and WordPress
 	 * 
 	 * @return array

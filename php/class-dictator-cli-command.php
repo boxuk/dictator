@@ -53,10 +53,17 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		foreach( $state_obj->get_regions() as $region_obj ) {
 
 			if ( $region_obj->is_under_accord() ) {
-
 				continue;
 			}
 
+			WP_CLI::line( sprintf( '%s:', $state_obj->get_region_name( $region_obj ) ) );
+
+			// Render the differences for the region
+			$differences = $region_obj->get_differences();
+			foreach( $differences as $slug => $difference ) {
+				$this->show_difference( $slug, $difference );
+				$region_obj->impose( $slug, $difference['dictated'] );
+			}
 
 		}
 
