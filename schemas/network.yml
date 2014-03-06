@@ -26,20 +26,9 @@ root:
       _prototype:
         _type: array
         _children:
-          # Can use 'name' or 'display_name'
-          # interchangably
-          name:
-            _type: text
-            _required: false
           display_name:
             _type: text
             _required: false
-          # Can use 'email' or 'user_email'
-          # interchangably
           email:
             _type: text
             _required: false
-          user_email:
-            _type: text
-            _required: false
-
