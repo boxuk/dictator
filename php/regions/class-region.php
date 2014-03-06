@@ -13,9 +13,9 @@ abstract class Region {
 	protected $data;
 
 	/**
-	 * Difference between the state file and WordPress
+	 * Differences between the state file and WordPress
 	 */
-	protected $difference;
+	protected $differences;
 
 	public function __construct( $data ) {
 
