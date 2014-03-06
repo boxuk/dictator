@@ -31,9 +31,9 @@ abstract class State {
 	public function get_regions() {
 
 		$regions = array();
-		foreach( $this->regions as $key => $class ) {
+		foreach( $this->regions as $name => $class ) {
 
-			$data = ( ! empty( $this->yaml[ $key ] ) ) ? $this->yaml[ $key ] : array();
+			$data = ( ! empty( $this->yaml[ $name ] ) ) ? $this->yaml[ $name ] : array();
 
 			$regions[] = new $class( $data );
 
@@ -41,6 +41,26 @@ abstract class State {
 		return $regions;
 
 	}
+
+	/**
+	 * Get the name of the region
+	 * 
+	 * @param object
+	 * @return string
+	 */
+	public function get_region_name( \Dictator\Regions\Region $region_obj ) {
+
+		foreach( $this->regions as $name => $class ) {
+
+			if ( is_a( $region_obj, $class ) ) {
+				return $name;
+			}
+
+		}
+
+		return '';
+
+	} 
 
 	
 }
