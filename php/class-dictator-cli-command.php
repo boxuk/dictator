@@ -97,13 +97,13 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 		$state_obj = Dictator::get_state_obj( $yaml['state'], $yaml );
 
-		foreach( $state_obj->get_regions() as $region_obj ) {
+		foreach( $state_obj->get_regions() as $region_name => $region_obj ) {
 
 			if ( $region_obj->is_under_accord() ) {
 				continue;
 			}
 
-			WP_CLI::line( sprintf( '%s:', $state_obj->get_region_name( $region_obj ) ) );
+			WP_CLI::line( sprintf( '%s:', $region_name ) );
 
 			// Render the differences for the region
 			$differences = $region_obj->get_differences();

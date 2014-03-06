@@ -35,7 +35,7 @@ abstract class State {
 
 			$data = ( ! empty( $this->yaml[ $name ] ) ) ? $this->yaml[ $name ] : array();
 
-			$regions[] = new $class( $data );
+			$regions[ $name ] = new $class( $data );
 
 		}
 		return $regions;
