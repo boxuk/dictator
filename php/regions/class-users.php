@@ -6,9 +6,9 @@ class Users extends Region {
 
 	private $users;
 
-	private $user_fields = array(
-		'name',
-		'email',
+	private $fields = array(
+		'display_name'   => 'display_name',
+		'email'          => 'user_email',
 		);
 
 	/**
@@ -43,6 +43,36 @@ class Users extends Region {
 	 */
 	public function impose( $key, $value ) {
 
+		// We'll need to create the user if they don't exist
+		$user = get_user_by( 'login', $key );
+		if ( ! $user ) {
+			$user_obj = array(
+				'user_login'     => $key,
+				'user_email'     => $value['email'], // 'email' is required
+				);
+			$user_id = wp_insert_user( $user_obj );
+			if ( is_wp_error( $user_id ) ) {
+				return $user_id;
+			}
+
+			// Network users should default to no roles / capabilities
+			delete_user_option( $user_id, 'capabilities' );
+			delete_user_option( $user_id, 'user_level' );
+
+			$user = get_user_by( 'id', $user_id );
+		}
+
+		// Update any values needing to be updated
+		foreach( $value as $yml_field => $single_value ) {
+
+			$model_field = $this->fields[ $yml_field ];
+
+			if ( $user->$model_field != $single_value ) {
+				wp_update_user( array( 'ID' => $user->ID, $model_field => $single_value ) );
+			}
+
+		}
+		return true;
 
 	}
 
@@ -65,26 +95,20 @@ class Users extends Region {
 			return $result;
 		}
 
-		foreach( $this->user_fields as $field ) {
+		foreach( $this->fields as $yml_field => $model_field ) {
 
-			switch ( $field ) {
+			switch ( $yml_field ) {
 
 				case 'display_name':
 				case 'email':
 
-					$map = array(
-						'display_name'    => 'display_name',
-						'email'           => 'user_email',
-						);
-					$key = $map[ $field ];
-
-					$value = $user->$key;
+					$value = $user->$model_field;
 		
 					break;
 
 			}
 
-			$result[ 'actual' ] [ $field ] = $value;
+			$result[ 'actual' ] [ $yml_field ] = $value;
 		}
 
 		if ( array_diff_assoc( $result['dictated'], $result['actual'] ) ) {
