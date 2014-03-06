@@ -129,5 +129,51 @@ class Dictator {
 
 	}
 
+	/**
+	 * Recursive difference of an array
+	 * 
+	 * @see https://gist.github.com/vincenzodibiaggio/5965342
+	 * 
+	 * @param array
+	 * @param array
+	 * @return array
+	 */
+	public static function array_diff_recursive( $array_1, $array_2 ) {
+
+		$ret = array();
+	
+		foreach ( $array_1 as $key => $value ) {
+
+			if ( array_key_exists( $key, $array_2 ) ) {
+
+				if ( is_array( $value ) ) {
+
+					$recursive_diff = self::array_diff_recursive( $value, $array_2[ $key ] );
+
+					if ( count( $recursive_diff ) ) {
+						$ret[ $key ] = $recursive_diff;
+					}
+				
+				} else {
+					
+					if ( $value !== $array_2[ $key ] ) {
+						
+						$ret[ $key ] = $value;
+					
+					}
+				
+				}
+
+			} else {
+
+				$ret[ $key ] = $value;
+
+			}
+
+		}
+
+		return $ret;
+
+	}
 	
 }
