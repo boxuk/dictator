@@ -32,11 +32,11 @@ abstract class Region {
 	abstract public function is_under_accord();
 
 	/**
-	 * Get the difference between the state file and WordPress
+	 * Get the differences between the state file and WordPress
 	 * 
 	 * @return array
 	 */
-	abstract public function get_difference();
+	abstract public function get_differences();
 
 	/**
 	 * Impose The Dictator's will on the region
