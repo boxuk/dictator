@@ -30,7 +30,9 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 		list( $state, $file ) = $args;
 
-		// @todo throw a warning if a state file is already detected here
+		if ( file_exists( $file ) && ! isset( $assoc_args['force'] ) ) {
+			WP_CLI::confirm( "Are you sure you want to overwrite the existing state file?" );
+		}
 
 		$state_obj = Dictator::get_state_obj( $state );
 		if ( ! $state_obj ) {
