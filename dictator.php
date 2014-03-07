@@ -1,14 +1,21 @@
 <?php
-/*
-Plugin Name: Dictator
-Version: 0.1-alpha
-Description: The Dictator controls the State of WordPress
-Author: danielbachhuber, humanmade
-Author URI: http://hmn.md/
-Plugin URI: http://wordpress.org/extend/plugins/dictator/
-Text Domain: dictator
-Domain Path: /languages
-*/
+/**
+ * The Dictator controls the State of WordPress with WP-CLI
+ * 
+ * Use wisely.
+ */
 
-if ( defined( 'WP_CLI' ) && WP_CLI )
-	require_once dirname( __FILE__ ) . '/inc/class-dictator-cli-command.php';
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+	return;
+}
+
+define( 'DICTATOR', true );
+
+/**
+ * Some files need to be manually loaded
+ */
+require_once dirname( __FILE__ ) . '/autoload.php';
+require_once dirname( __FILE__ ) . '/php/class-dictator.php';
+require_once dirname( __FILE__ ) . '/php/class-dictator-cli-command.php';
+
+Dictator::add_state( 'network', '\Dictator\States\Network', 'network.yml' );
