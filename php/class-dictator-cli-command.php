@@ -21,13 +21,31 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 * <file>
 	 * : Where the state should be exported to
 	 * 
+	 * [--force]
+	 * : Forcefully overwrite an existing state file if one exists.
+	 * 
 	 * @subcommand export
 	 */
 	public function export( $args, $assoc_args ) {
 
 		list( $state, $file ) = $args;
 
+		// @todo throw a warning if a state file is already detected here
 
+		$state_obj = Dictator::get_state_obj( $state );
+		if ( ! $state_obj ) {
+			WP_CLI::error( "Invalid state supplied." );
+		}
+
+		// Build the state's data
+		$state_data = array( 'state' => $state );
+		foreach( $state_obj->get_regions() as $region_name => $region_obj ) {
+			$state_data[ $region_name ] = $region_obj->get_current_data();
+		}
+
+		$this->write_state_file( $state_data, $file );
+
+		WP_CLI::success( "State written to file." );
 	}
 
 	/**
@@ -63,7 +81,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 			foreach( $differences as $slug => $difference ) {
 				$this->show_difference( $slug, $difference );
 
-				$to_impose = \Dictator::array_diff_recursive( $difference['dictated'], $difference['actual'] );
+				$to_impose = \Dictator::array_diff_recursive( $difference['dictated'], $difference['current'] );
 				$ret = $region_obj->impose( $slug, $difference['dictated'] );
 				if ( is_wp_error( $ret ) ) {
 					WP_CLI::warning( $ret->get_error_message() );
@@ -182,7 +200,20 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Visually depict the difference between "dictated" and "actual"
+	 * Write a state object to a file
+	 * 
+	 * @param object $state_obj
+	 * @param string $file
+	 */
+	private function write_state_file( $state_data, $file ) {
+
+		$spyc = new Spyc;
+		$file_data = $spyc->dump( $state_data );
+		file_put_contents( $file, $file_data );
+	}
+
+	/**
+	 * Visually depict the difference between "dictated" and "current"
 	 * 
 	 * @param array
 	 */
@@ -191,11 +222,11 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		$this->output_nesting_level = 0;
 
 		// Data already exists within WordPress
-		if ( ! empty( $difference['actual'] ) ) {
+		if ( ! empty( $difference['current'] ) ) {
 
 			$this->nested_line( $slug . ': ' );
 
-			$this->recursively_show_difference( $difference['dictated'], $difference['actual'] );
+			$this->recursively_show_difference( $difference['dictated'], $difference['current'] );
 
 		} else {
 
@@ -210,9 +241,9 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Recursively output the difference between "dictated" and "actual"
+	 * Recursively output the difference between "dictated" and "current"
 	 */
-	private function recursively_show_difference( $dictated, $actual = null ) {
+	private function recursively_show_difference( $dictated, $current = null ) {
 
 		$this->output_nesting_level++;
 
@@ -222,25 +253,25 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 				if ( $this->is_assoc_array( $value ) || is_array( $value ) ) {
 
-					$new_actual = isset( $actual[ $key ] ) ? $actual[ $key ] : null;
-					if ( $new_actual ) {
+					$new_current = isset( $current[ $key ] ) ? $current[ $key ] : null;
+					if ( $new_current ) {
 						$this->nested_line( $key . ': ' );
 					} else {
 						$this->add_line( $key . ': ' );
 					}
 
-					$this->recursively_show_difference( $value, $new_actual );
+					$this->recursively_show_difference( $value, $new_current );
 
 				} else if ( is_string( $value ) ) {
 
 					$pre = $key . ': ';
 
-					if ( isset( $actual[ $key ] ) && $actual[ $key ] !== $value ) {
+					if ( isset( $current[ $key ] ) && $current[ $key ] !== $value ) {
 
-						$this->remove_line( $pre . $actual[ $key ] );
+						$this->remove_line( $pre . $current[ $key ] );
 						$this->add_line( $pre . $value );
 
-					} else if ( ! isset( $actual[ $key ] ) ) {
+					} else if ( ! isset( $current[ $key ] ) ) {
 
 						$this->add_line( $pre . $value );
 
@@ -254,8 +285,8 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 			foreach( $dictated as $value ) {
 
-				if ( ! $actual 
-					|| ! in_array( $value, $actual ) ) {
+				if ( ! $current 
+					|| ! in_array( $value, $current ) ) {
 					$this->add_line( '- ' . $value );
 				}
 
@@ -265,12 +296,12 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 			$pre = $key . ': ';
 
-			if ( isset( $actual[ $key ] ) && $actual[ $key ] !== $value ) {
+			if ( isset( $current[ $key ] ) && $current[ $key ] !== $value ) {
 
-				$this->remove_line( $pre . $actual[ $key ] );
+				$this->remove_line( $pre . $current[ $key ] );
 				$this->add_line( $pre . $value );
 
-			} else if ( ! isset( $actual[ $key ] ) ) {
+			} else if ( ! isset( $current[ $key ] ) ) {
 
 				$this->add_line( $pre . $value );
 

@@ -16,6 +16,8 @@ class Network_Sites extends Region {
 		'users',
 		);
 
+	protected $blog_ids = array();
+
 	/**
 	 * Get the differences between declared sites and sites on network
 	 * 
@@ -29,7 +31,7 @@ class Network_Sites extends Region {
 
 		$this->differences = array();
 		// Check each declared site in state data against WordPress
-		foreach( $this->data as $site_slug => $site_data ) {
+		foreach( $this->get_imposed_data() as $site_slug => $site_data ) {
 
 			$site_result = $this->get_site_difference( $site_slug, $site_data );
 
@@ -60,7 +62,7 @@ class Network_Sites extends Region {
 			}
 		}
 
-		switch_to_blog( $site['blog_id'] );
+		switch_to_blog( $this->blog_ids[ $key ] );
 		foreach( $value as $field => $single_value ) {
 
 			switch ( $field ) {
@@ -84,7 +86,7 @@ class Network_Sites extends Region {
 							continue;
 						}
 
-						add_user_to_blog( (int) $site['blog_id'], $user->ID, $role );
+						add_user_to_blog( (int) $this->blog_ids[ $key ], $user->ID, $role );
 					}
 
 					break;
@@ -99,6 +101,88 @@ class Network_Sites extends Region {
 	}
 
 	/**
+	 * Get the current data for the site region
+	 * 
+	 * @return array
+	 */
+	public function get_current_data() {
+	
+		if ( isset( $this->sites ) ) {
+			return $this->sites;
+		}
+
+		$args = array(
+			'limit'     => 200,
+			'offset'    => 0,
+			);
+		$sites = array();
+		do {
+
+			$sites_results = wp_get_sites( $args );
+			$sites = array_merge( $sites, $sites_results );
+
+			$args['offset'] += $args['limit'];
+
+		} while( $sites_results );
+
+		$this->sites = array();
+		foreach( $sites as $site ) {
+
+			$site_slug = str_replace( '.' . get_current_site()->domain, '', $site['domain'] );
+
+			$this->blog_ids[ $site_slug ] = $site['blog_id'];
+
+			switch_to_blog( $site['blog_id'] );
+			foreach( $this->site_fields as $field ) {
+
+				switch ( $field ) {
+
+					case 'title':
+					case 'description':
+
+						$map = array(
+							'title'         => 'blogname',
+							'description'   => 'blogdescription',
+							);
+
+						$value = get_option( $map[ $field ] );
+						break;
+
+					case 'users':
+
+						$value = array();
+
+						$site_users = get_users();
+						foreach( $site_users as $site_user ) {
+							$value[ $site_user->user_login ] = array_shift( $site_user->roles );
+						}
+
+						break;
+
+				}
+
+				$this->sites[ $site_slug ][ $field ] = $value;
+
+			}
+			restore_current_blog();
+
+		}
+
+		return $this->sites;
+	}
+
+	/**
+	 * Get the imposed data for the site region
+	 * 
+	 * @return array
+	 */
+	public function get_imposed_data() {
+
+		return $this->data;
+		
+	}
+
+	/**
 	 * Get the difference of the site data to the site on the network
 	 * 
 	 * @param string $site_slug
@@ -107,97 +191,26 @@ class Network_Sites extends Region {
 	 */
 	protected function get_site_difference( $site_slug, $site_data ) {
 
-		$matched_site = $this->get_site( $site_slug );
-
 		$site_result = array(
 			'dictated'        => $site_data,
-			'actual'          => array(),
-			);
+			'current'         => array(),
+		);
+
+		$matched_site = $this->get_site( $site_slug );
 
 		// If there wasn't a matched site, the site must not exist
 		if ( empty( $matched_site ) ) {
 			return $site_result;
 		}
 
-		switch_to_blog( $matched_site['blog_id'] );
-		foreach( $this->site_fields as $field ) {
+		$site_result['current'] = $matched_site;
 
-			switch ( $field ) {
-
-				case 'title':
-				case 'description':
-
-					$map = array(
-						'title'         => 'blogname',
-						'description'   => 'blogdescription',
-						);
-
-					$value = get_option( $map[ $field ] );
-					break;
-
-				case 'users':
-
-					$value = array();
-
-					// We only care about users present in our state file
-					if ( ! empty( $site_result['dictated']['users'] ) ) {
-
-						$site_users = get_users();
-						foreach( $site_users as $site_user ) {
-
-							if ( ! array_key_exists( $site_user->user_login, $site_result['dictated']['users'] ) ) {
-								continue;
-							}
-
-							$value[ $site_user->user_login ] = array_shift( $site_user->roles );
-
-						}
-
-					}
-
-					break;
-
-			}
-
-			$site_result[ 'actual' ] [ $field ] = $value;
-
-		}
-		restore_current_blog();
-
-		if ( \Dictator::array_diff_recursive( $site_result['dictated'], $site_result['actual'] ) ) {
+		if ( \Dictator::array_diff_recursive( $site_result['dictated'], $site_result['current'] ) ) {
 			return $site_result;
 		} else {
 			return false;
 		}
 
-	}
-
-	/**
-	 * Get the sites on this network
-	 *
-	 * @return array
-	 */
-	protected function get_sites() {
-
-		if ( isset( $this->sites ) ) {
-			return $this->sites;
-		}
-
-		$this->sites = array();
-		$args = array(
-			'limit'     => 200,
-			'offset'    => 0,
-			);
-		do {
-
-			$sites_results = wp_get_sites( $args );
-			$this->sites = array_merge( $this->sites, $sites_results );
-
-			$args['offset'] += $args['limit'];
-
-		} while( $sites_results );
-
-		return $this->sites;
 	}
 
 	/**
@@ -208,14 +221,9 @@ class Network_Sites extends Region {
 	 */
 	protected function get_site( $site_slug ) {
 
-		$sites = $this->get_sites();
-		$matched_site = false;
-		foreach( $sites as $site ) {
-			$slug = str_replace( '.' . get_current_site()->domain, '', $site['domain'] );
-			if ( $site_slug === $slug ) {
-				return $site;
-			}
-
+		$sites = $this->get_current_data();
+		if ( ! empty( $sites[ $site_slug ] ) ) {
+			return $sites[ $site_slug ];
 		}
 
 		return false;

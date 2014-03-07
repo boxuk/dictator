@@ -58,4 +58,16 @@ abstract class Region {
 	 */
 	abstract public function get_differences();
 
+	/**
+	 * Get the current data for the region
+	 * 
+	 * @return array
+	 */
+	abstract public function get_current_data();
+
+	/**
+	 * Get the imposed data for the region
+	 */
+	abstract public function get_imposed_data();
+
 }

@@ -17,7 +17,7 @@ abstract class State {
 	 */
 	protected $regions = array();
 
-	public function __construct( $yaml ) {
+	public function __construct( $yaml = null ) {
 
 		$this->yaml = $yaml;
 
@@ -60,7 +60,21 @@ abstract class State {
 
 		return '';
 
-	} 
+	}
+
+	/**
+	 * Get the Yaml associated with the State
+	 */
+	public function get_yaml() {
+
+		// Yaml was passed when the state was instantiated
+		if ( ! is_null( $this->yaml ) ) {
+			return $this->yaml;
+		}
+
+
+
+	}
 
 	
 }

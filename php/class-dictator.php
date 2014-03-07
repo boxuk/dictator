@@ -85,7 +85,7 @@ class Dictator {
 	 * @param array $yaml Data from the state file
 	 * @return object|false
 	 */
-	public static function get_state_obj( $name, $yaml ) {
+	public static function get_state_obj( $name, $yaml = null ) {
 
 		if ( self::called_statically() ) {
 			return Dictator::get_instance()->get_state_obj( $name, $yaml );

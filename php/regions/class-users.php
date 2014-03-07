@@ -20,7 +20,7 @@ class Users extends Region {
 
 		$this->differences = array();
 		// Check each declared user in state data against WordPress
-		foreach( $this->data as $user_login => $user_data ) {
+		foreach( $this->get_imposed_data() as $user_login => $user_data ) {
 
 			$result = $this->get_user_difference( $user_login, $user_data );
 
@@ -77,6 +77,53 @@ class Users extends Region {
 	}
 
 	/**
+	 * Get the current data for the user region
+	 * 
+	 * @return array
+	 */
+	public function get_current_data() {
+
+		if ( ! empty( $this->users ) ) {
+			return $this->users;
+		}
+
+		$users = get_users( array( 'blog_id' => 0 ) );
+		$this->users = array();
+		foreach( $users as $user ) {
+
+			foreach( $this->fields as $yml_field => $model_field ) {
+
+				switch ( $yml_field ) {
+
+					case 'display_name':
+					case 'email':
+
+						$value = $user->$model_field;
+			
+						break;
+
+				}
+
+				$this->users[ $user->user_login ][ $yml_field ] = $value;
+			}
+
+		}
+
+		return $this->users;
+	}
+
+	/**
+	 * Get the imposed data for the user region
+	 * 
+	 * @return array
+	 */
+	public function get_imposed_data() {
+
+		return $this->data;
+		
+	}
+
+	/**
 	 * Get the difference between the declared user and the actual user
 	 * 
 	 * @param string $user_login
@@ -87,31 +134,17 @@ class Users extends Region {
 
 		$result = array(
 			'dictated'        => $user_data,
-			'actual'          => array(),
+			'current'         => array(),
 		);
 
-		$user = get_user_by( 'login', $user_login );
-		if ( ! $user ) {
+		$users = $this->get_current_data();
+		if ( ! isset( $users[ $user_login ] ) ) {
 			return $result;
 		}
 
-		foreach( $this->fields as $yml_field => $model_field ) {
+		$result['current'] = $users[ $user_login ];
 
-			switch ( $yml_field ) {
-
-				case 'display_name':
-				case 'email':
-
-					$value = $user->$model_field;
-		
-					break;
-
-			}
-
-			$result[ 'actual' ] [ $yml_field ] = $value;
-		}
-
-		if ( array_diff_assoc( $result['dictated'], $result['actual'] ) ) {
+		if ( array_diff_assoc( $result['dictated'], $result['current'] ) ) {
 			return $result;
 		} else {
 			return false;
