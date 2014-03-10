@@ -8,6 +8,5 @@ class Network extends State {
 		'users' => '\Dictator\Regions\Network_Users',
 		'sites' => '\Dictator\Regions\Network_Sites',
 		);
-
 	
 }
