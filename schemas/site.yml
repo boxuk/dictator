@@ -1,0 +1,37 @@
+root:
+  _type: array
+  _children:
+    state:
+      _type: enum
+      _values:
+        - site
+    users:
+      _type: prototype
+      _prototype:
+        _type: array
+        _children:
+          display_name:
+            _type: text
+            _required: false
+          email:
+            _type: text
+            _required: false
+          role:
+            _type: text
+            _required: false
+    terms:
+      _type: prototype
+      _prototype:
+        _type: prototype
+        _prototype:
+          _type: array
+          _children:
+            name:
+              _type: text
+              _required: false
+            description:
+              _type: text
+              _required: false
+            parent:
+              _type: text
+              _required: false

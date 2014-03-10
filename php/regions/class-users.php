@@ -2,13 +2,14 @@
 
 namespace Dictator\Regions;
 
-class Users extends Region {
+abstract class Users extends Region {
 
 	private $users;
 
 	private $fields = array(
 		'display_name'   => 'display_name',
 		'email'          => 'user_email',
+		'role'           => 'role',
 		);
 
 	/**
@@ -35,6 +36,71 @@ class Users extends Region {
 	}
 
 	/**
+	 * Get the imposed data for the user region
+	 * 
+	 * @return array
+	 */
+	public function get_imposed_data() {
+
+		return $this->data;
+		
+	}
+
+	/**
+	 * Get the current data for the user region
+	 * 
+	 * @return array
+	 */
+	public function get_current_data() {
+
+		if ( ! empty( $this->users ) ) {
+			return $this->users;
+		}
+
+		if ( 'network' == $this->get_context() ) {
+			$args['blog_id'] = 0; // all users
+		} else {
+			$args['blog_id'] = get_current_blog_id();
+		}
+
+		$users = get_users( $args );
+		$this->users = array();
+		foreach( $users as $user ) {
+
+			foreach( $this->fields as $yml_field => $model_field ) {
+
+				// Users have no role in the network context
+				// @todo needs a better abstraction
+				if ( 'role' == $yml_field && 'network' == $this->get_context() ) {
+					continue;
+				}
+
+				switch ( $yml_field ) {
+
+					case 'display_name':
+					case 'email':
+
+						$value = $user->$model_field;
+			
+						break;
+
+					case 'role':
+
+						$value = array_shift( $user->roles );
+
+						break;
+
+				}
+
+				$this->users[ $user->user_login ][ $yml_field ] = $value;
+			}
+
+		}
+
+		return $this->users;
+	}
+
+	/**
 	 * Impose some state data onto a region
 	 * 
 	 * @param string $key User login
@@ -56,14 +122,22 @@ class Users extends Region {
 			}
 
 			// Network users should default to no roles / capabilities
-			delete_user_option( $user_id, 'capabilities' );
-			delete_user_option( $user_id, 'user_level' );
+			if ( 'network' == $this->get_context() ) {
+				delete_user_option( $user_id, 'capabilities' );
+				delete_user_option( $user_id, 'user_level' );
+			}
 
 			$user = get_user_by( 'id', $user_id );
 		}
 
 		// Update any values needing to be updated
 		foreach( $value as $yml_field => $single_value ) {
+
+			// Users have no role in the network context
+			// @todo needs a better abstraction
+			if ( 'role' == $yml_field && 'network' == $this->get_context() ) {
+				continue;
+			}
 
 			$model_field = $this->fields[ $yml_field ];
 
@@ -74,53 +148,6 @@ class Users extends Region {
 		}
 		return true;
 
-	}
-
-	/**
-	 * Get the current data for the user region
-	 * 
-	 * @return array
-	 */
-	public function get_current_data() {
-
-		if ( ! empty( $this->users ) ) {
-			return $this->users;
-		}
-
-		$users = get_users( array( 'blog_id' => 0 ) );
-		$this->users = array();
-		foreach( $users as $user ) {
-
-			foreach( $this->fields as $yml_field => $model_field ) {
-
-				switch ( $yml_field ) {
-
-					case 'display_name':
-					case 'email':
-
-						$value = $user->$model_field;
-			
-						break;
-
-				}
-
-				$this->users[ $user->user_login ][ $yml_field ] = $value;
-			}
-
-		}
-
-		return $this->users;
-	}
-
-	/**
-	 * Get the imposed data for the user region
-	 * 
-	 * @return array
-	 */
-	public function get_imposed_data() {
-
-		return $this->data;
-		
 	}
 
 	/**
@@ -152,6 +179,17 @@ class Users extends Region {
 
 	}
 
-
+	/**
+	 * Get the context in which this class was called
+	 */
+	protected function get_context() {
+		$class_name = get_class( $this );
+		if ( 'Dictator\Regions\Network_Users' == $class_name ) {
+			return 'network';
+		} else if ( 'Dictator\Regions\Site_Users' == $class_name ) {
+			return 'site';
+		}
+		return false;
+	}
 
 }
