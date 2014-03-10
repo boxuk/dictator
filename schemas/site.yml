@@ -19,3 +19,19 @@ root:
           role:
             _type: text
             _required: false
+    terms:
+      _type: prototype
+      _prototype:
+        _type: prototype
+        _prototype:
+          _type: array
+          _children:
+            name:
+              _type: text
+              _required: false
+            description:
+              _type: text
+              _required: false
+            parent:
+              _type: text
+              _required: false
