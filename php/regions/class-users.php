@@ -9,6 +9,7 @@ abstract class Users extends Region {
 	private $fields = array(
 		'display_name'   => 'display_name',
 		'email'          => 'user_email',
+		'role'           => 'role',
 		);
 
 	/**
@@ -75,6 +76,12 @@ abstract class Users extends Region {
 
 						$value = $user->$model_field;
 			
+						break;
+
+					case 'role':
+
+						$value = array_shift( $user->roles );
+
 						break;
 
 				}
