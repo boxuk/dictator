@@ -69,6 +69,12 @@ abstract class Users extends Region {
 
 			foreach( $this->fields as $yml_field => $model_field ) {
 
+				// Users have no role in the network context
+				// @todo needs a better abstraction
+				if ( 'role' == $yml_field && 'network' == $this->get_context() ) {
+					continue;
+				}
+
 				switch ( $yml_field ) {
 
 					case 'display_name':
@@ -126,6 +132,12 @@ abstract class Users extends Region {
 
 		// Update any values needing to be updated
 		foreach( $value as $yml_field => $single_value ) {
+
+			// Users have no role in the network context
+			// @todo needs a better abstraction
+			if ( 'role' == $yml_field && 'network' == $this->get_context() ) {
+				continue;
+			}
 
 			$model_field = $this->fields[ $yml_field ];
 
