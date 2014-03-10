@@ -19,3 +19,4 @@ require_once dirname( __FILE__ ) . '/php/class-dictator.php';
 require_once dirname( __FILE__ ) . '/php/class-dictator-cli-command.php';
 
 Dictator::add_state( 'network', '\Dictator\States\Network', 'network.yml' );
+Dictator::add_state( 'site', '\Dictator\States\Site', 'site.yml' );
