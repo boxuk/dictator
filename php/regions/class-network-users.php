@@ -2,7 +2,7 @@
 
 namespace Dictator\Regions;
 
-class Users extends Region {
+class Network_Users extends Region {
 
 	private $users;
 
