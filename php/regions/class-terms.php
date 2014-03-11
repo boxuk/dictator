@@ -151,15 +151,6 @@ class Terms extends Region {
 	}
 
 	/**
-	 * Get the imposed data for the region
-	 */
-	public function get_imposed_data() {
-
-		return $this->data;
-
-	}
-
-	/**
 	 * Get the difference between the declared taxonomy state and
 	 * the actual taxonomy state
 	 * 
