@@ -172,17 +172,6 @@ class Network_Sites extends Region {
 	}
 
 	/**
-	 * Get the imposed data for the site region
-	 * 
-	 * @return array
-	 */
-	public function get_imposed_data() {
-
-		return $this->data;
-		
-	}
-
-	/**
 	 * Get the difference of the site data to the site on the network
 	 * 
 	 * @param string $site_slug

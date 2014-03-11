@@ -36,17 +36,6 @@ abstract class Users extends Region {
 	}
 
 	/**
-	 * Get the imposed data for the user region
-	 * 
-	 * @return array
-	 */
-	public function get_imposed_data() {
-
-		return $this->data;
-		
-	}
-
-	/**
 	 * Get the current data for the user region
 	 * 
 	 * @return array

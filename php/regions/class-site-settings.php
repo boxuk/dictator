@@ -104,13 +104,4 @@ class Site_Settings extends Region {
 		return $this->options;
 	}
 
-	/**
-	 * Get the imposed data for the region
-	 */
-	public function get_imposed_data() {
-
-		return $this->data;
-
-	}
-
 }

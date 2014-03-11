@@ -68,6 +68,10 @@ abstract class Region {
 	/**
 	 * Get the imposed data for the region
 	 */
-	abstract public function get_imposed_data();
+	public function get_imposed_data() {
+
+		return $this->data;
+
+	}
 
 }
