@@ -5,6 +5,31 @@ root:
       _type: enum
       _values:
         - site
+    settings:
+      _type: array
+      _children:
+        title:
+          _type: text
+          _required: false
+        description:
+          _type: text
+          _required: false
+        date_format:
+          _type: text
+          _required: false
+        time_format:
+          _type: text
+          _required: false
+        active_theme:
+          _type: text
+          _required: false
+        active_plugins:
+          _type: prototype
+          _prototype:
+            _type: text
+        default_role:
+          _type: text
+          _required: false
     users:
       _type: prototype
       _prototype:
