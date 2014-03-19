@@ -16,6 +16,9 @@ root:
           description:
             _type: text
             _required: false
+          active_theme:
+            _type: text
+            _required: false
           users:
             _type: prototype
             _is_required: false
