@@ -13,6 +13,7 @@ class Network_Sites extends Region {
 	protected $site_fields = array(
 		'title',
 		'description',
+		'active_theme',
 		'users',
 		);
 
@@ -76,6 +77,14 @@ class Network_Sites extends Region {
 						);
 
 					update_option( $map[ $field ], $single_value );
+					break;
+
+				case 'active_theme':
+
+					if ( $single_value !== get_option( 'stylesheet' ) ) {
+						switch_theme( $single_value );
+					}
+
 					break;
 
 				case 'users':
@@ -146,6 +155,12 @@ class Network_Sites extends Region {
 							);
 
 						$value = get_option( $map[ $field ] );
+						break;
+
+					case 'active_theme':
+
+						$value = get_option( 'stylesheet' );
+
 						break;
 
 					case 'users':
