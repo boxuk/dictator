@@ -1,8 +1,5 @@
 <?php
 
-use RomaricDrigon\MetaYaml\MetaYaml;
-use RomaricDrigon\MetaYaml\Exception\NodeValidatorException;
-
 /**
  * The Dictator controls the State of WordPress.
  */
