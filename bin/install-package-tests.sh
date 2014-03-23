@@ -60,6 +60,10 @@ install_db() {
 
 	# create database
 	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+
+	# For wp_cli_test too
+	mysql -e 'CREATE DATABASE wp_cli_test;' -uroot
+	mysql -e 'GRANT ALL PRIVILEGES ON wp_cli_test.* TO "wp_cli_test"@"localhost" IDENTIFIED BY "password1"' -uroot
 }
 
 install_wp
