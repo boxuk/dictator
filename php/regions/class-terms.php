@@ -157,8 +157,6 @@ class Terms extends Region {
 			$terms = array();
 		}
 
-		error_log( var_export( $terms, true ) );
-
 		$this->terms[ $taxonomy ] = $terms;
 
 		return wp_list_pluck( $terms, 'slug' );
