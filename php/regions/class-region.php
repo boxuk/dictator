@@ -13,6 +13,11 @@ abstract class Region {
 	protected $data;
 
 	/**
+	 * Schema for the region
+	 */
+	protected $schema = array();
+
+	/**
 	 * Differences between the state file and WordPress
 	 */
 	protected $differences;
@@ -38,6 +43,15 @@ abstract class Region {
 			return false;
 		}
 
+	}
+
+	/**
+	 * Get the schema for this region
+	 * 
+	 * @return array
+	 */
+	public function get_schema() {
+		return $this->schema;
 	}
 
 	/**

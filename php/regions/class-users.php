@@ -6,6 +6,45 @@ abstract class Users extends Region {
 
 	private $users;
 
+	protected $schema = array(
+		'_type'       => 'prototype',
+		'_prototype'  => array(
+			'_type'        => 'array',
+			'_children'    => array(
+				'display_name'   => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => '',
+					'_update_callback'  => '',
+					),
+				'first_name'     => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => '',
+					'_update_callback'  => '',
+					),
+				'last_name'      => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => '',
+					'_update_callback'  => '',
+					),
+				'email'          => array(
+					'_type'             => 'email',
+					'_required'         => false,
+					'_get_callback'     => '',
+					'_update_callback'  => '',
+					),
+				'role'           => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => '',
+					'_update_callback'  => '',
+					),
+				)
+			)
+		);
+
 	private $fields = array(
 		'display_name'   => 'display_name',
 		'email'          => 'user_email',

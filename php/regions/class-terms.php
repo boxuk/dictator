@@ -6,10 +6,34 @@ class Terms extends Region {
 
 	private $terms;
 
-	private $fields = array(
-		'name'         => 'name',
-		'parent'       => 'parent',
-		'description'  => 'description',
+	protected $schema = array(
+		'_type' => 'prototype',
+		'_prototype' => array(
+			'_type' => 'prototype',
+			'_prototype' => array(
+				'_type'      => 'array',
+				'_children'  => array(
+					'name'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => '',
+						'_update_callback' => '',
+						),
+					'description'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => '',
+						'_update_callback' => '',
+						),
+					'parent'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => '',
+						'_update_callback' => '',
+						),
+					)
+				)
+			)
 		);
 
 	/**

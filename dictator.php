@@ -16,6 +16,7 @@ define( 'DICTATOR', true );
  */
 require_once dirname( __FILE__ ) . '/autoload.php';
 require_once dirname( __FILE__ ) . '/php/class-dictator.php';
+require_once dirname( __FILE__ ) . '/php/class-dictator-translator.php';
 require_once dirname( __FILE__ ) . '/php/class-dictator-cli-command.php';
 
 Dictator::add_state( 'network', '\Dictator\States\Network' );

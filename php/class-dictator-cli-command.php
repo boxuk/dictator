@@ -184,14 +184,28 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 		if ( empty( $yaml[ 'state' ] )
 			|| ! Dictator::is_valid_state( $yaml[ 'state' ] ) ) {
 			WP_CLI::error( "Incorrect state." );
-		}	
+		}
 
-		$schema = Dictator::get_state_schema_obj( $yaml['state'] );
+		$yaml_data = $yaml;
+		unset( $yaml_data['state'] );
 
-		try {
-			$schema->validate( $yaml );
-		} catch ( NodeValidatorException $e ) {
-			WP_CLI::error( $e->getMessage() );
+		$state_obj = Dictator::get_state_obj( $yaml['state'], $yaml_data );
+
+		$has_errors = false;
+		foreach( $state_obj->get_regions() as $region ) {
+
+			$translator = new \Dictator\Translator( $region );
+			if ( ! $translator->is_valid_state_data() ) {
+				foreach( $translator->get_state_data_errors() as $error_message ) {
+					WP_CLI::warning( $error_message );
+				}
+				$has_errors = true;
+			}
+
+		}
+
+		if ( $has_errors ) {
+			WP_CLI::error( "State doesn't validate." );
 		}
 
 		return true;

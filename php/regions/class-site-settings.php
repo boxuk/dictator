@@ -4,6 +4,48 @@ namespace Dictator\Regions;
 
 class Site_Settings extends Region {
 
+	protected $schema = array(
+		'_type'      => 'array',
+		'_children'  => array(
+			'title'         => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			'description'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			'date_format'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			'time_format'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			'active_theme'  => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			'active_plugins' => array(
+				'_type'             => 'array',
+				'_required'         => false,
+				'_get_callback'     => '',
+				'_update_callback'  => '',
+				),
+			),
+		);
+
 	private $options;
 
 	private $fields = array(
