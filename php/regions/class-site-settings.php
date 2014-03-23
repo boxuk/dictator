@@ -11,37 +11,31 @@ class Site_Settings extends Region {
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			'description'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			'date_format'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			'time_format'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			'active_theme'  => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			'active_plugins' => array(
 				'_type'             => 'array',
 				'_required'         => false,
 				'_get_callback'     => 'get',
-				'_update_callback'  => 'update',
 				),
 			),
 		);
@@ -61,12 +55,16 @@ class Site_Settings extends Region {
 
 			switch ( $key ) {
 
+				case 'title':
+					update_option( 'blogname', $value );
+					break;
+
+				case 'description':
+					update_option( 'blogdescription', $value );
+					break;
+
 				case 'active_theme':
-
-					if ( $value !== get_option( 'stylesheet' ) ) {
-						switch_theme( $value );
-					}
-
+					switch_theme( $value );
 					break;
 
 				case 'active_plugins':
@@ -78,16 +76,10 @@ class Site_Settings extends Region {
 						}
 
 					}
-
 					break;
 				
 				default:
-				
-					$model_key = $this->fields[ $key ];
-					if ( $value != get_option( $this->fields[ $key ] ) ) {
-						update_option( $model_key, $value );
-					}
-
+					update_option( $name, $value );
 					break;
 			}
 
@@ -121,7 +113,7 @@ class Site_Settings extends Region {
 	 * @param string $name
 	 * @return mixed
 	 */
-	public static function get( $name ) {
+	public function get( $name ) {
 
 		switch ( $name ) {
 			case 'title':
@@ -142,46 +134,6 @@ class Site_Settings extends Region {
 		}
 
 		return $value;
-
-	}
-
-	/**
-	 * Update the value for the setting
-	 * 
-	 * @param string $name
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public static function update( $name, $value ) {
-
-		switch ( $name ) {
-			case 'title':
-				update_option( 'blogname', $value );
-				break;
-
-			case 'description':
-				update_option( 'blogdescription', $value );
-				break;
-
-			case 'active_theme':
-				switch_theme( $value );
-				break;
-
-			case 'active_plugins':
-
-				foreach( $value as $plugin ) {
-
-					if ( ! is_plugin_active( $plugin ) ) {
-						activate_plugin( $plugin );
-					}
-
-				}
-				break;
-			
-			default:
-				update_option( $name, $value );
-				break;
-		}
 
 	}
 
