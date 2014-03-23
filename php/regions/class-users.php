@@ -14,31 +14,26 @@ abstract class Users extends Region {
 					'_type'             => 'text',
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
-					'_update_callback'  => '',
 					),
 				'first_name'     => array(
 					'_type'             => 'text',
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
-					'_update_callback'  => '',
 					),
 				'last_name'      => array(
 					'_type'             => 'text',
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
-					'_update_callback'  => '',
 					),
 				'email'          => array(
 					'_type'             => 'email',
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
-					'_update_callback'  => '',
 					),
 				'role'           => array(
 					'_type'             => 'text',
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
-					'_update_callback'  => '',
 					),
 				)
 			)
@@ -167,7 +162,15 @@ abstract class Users extends Region {
 				continue;
 			}
 
-			$model_field = $this->fields[ $yml_field ];
+			switch ( $yml_field ) {
+				case 'email':
+					$model_field = 'user_email';
+					break;
+				
+				default:
+					$model_field = $yml_field;
+					break;
+			}
 
 			if ( $user->$model_field != $single_value ) {
 				wp_update_user( array( 'ID' => $user->ID, $model_field => $single_value ) );
