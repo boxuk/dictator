@@ -68,29 +68,25 @@ class Terms extends Region {
 				$term = get_term_by( 'id', $ret['term_id'], $key );
 			}
 
-			foreach( $this->fields as $yml_field => $model_field ) {
-
-				if ( ! isset( $term_values[ $yml_field ] ) ) {
-					continue;
-				}
+			foreach( $term_values as $yml_field => $term_value ) {
 
 				switch ( $yml_field ) {
 					case 'name':
 					case 'description':
 
-						if ( $term_values[ $yml_field ] == $term->$model_field ) {
+						if ( $term_value == $term->$yml_field ) {
 							break;
 						}
 
-						wp_update_term( $term->term_id, $key, array( $model_field => $term_values[ $yml_field ] ) );
+						wp_update_term( $term->term_id, $key, array( $yml_field => $term_value ) );
 
 						break;
 
 					case 'parent':
 
-						if ( $term_values[ $yml_field ] ) {
+						if ( $term_value ) {
 							
-							$parent_term = get_term_by( 'slug', $term_values[ $yml_field ], $key );
+							$parent_term = get_term_by( 'slug', $term_value, $key );
 							if ( ! $parent_term ) {
 								return new \WP_Error( 'invalid-parent', sprintf( "Parent is invalid for term: %s", $slug ) );
 							}
@@ -99,9 +95,9 @@ class Terms extends Region {
 								break;
 							}
 
-							wp_update_term( $term->term_id, $key, array( $model_field => $parent_term->term_id ) );
-						} else if ( ! $term_values[ $yml_field ] && $term->parent ) {
-							wp_update_term( $term->term_id, $key, array( $model_field => 0 ) );
+							wp_update_term( $term->term_id, $key, array( 'parent' => $parent_term->term_id ) );
+						} else if ( ! $term_value && $term->parent ) {
+							wp_update_term( $term->term_id, $key, array( 'parent' => 0 ) );
 						}
 
 						break;
@@ -181,9 +177,14 @@ class Terms extends Region {
 		switch( $key ) {
 
 			case 'parent':
-				$parent = wp_filter_object_list( $this->terms[ $taxonomy ], array( 'term_id' => $term->parent ) );
+				$parent = false;
+				foreach( $this->terms[ $taxonomy ] as $maybe_parent_term ) {
+					if ( $maybe_parent_term->term_id === $term->parent ) {
+						$parent = $maybe_parent_term;
+					}
+				}
 				if ( ! empty( $parent ) ) {
-					$value = $parent[0]->slug;
+					$value = $parent->slug;
 				} else {
 					$value = '';
 				}
