@@ -4,8 +4,6 @@ namespace Dictator\Regions;
 
 class Terms extends Region {
 
-	private $terms;
-
 	protected $schema = array(
 		'_type'         => 'prototype',
 		'_get_callback' => 'get_taxonomies',
@@ -37,6 +35,11 @@ class Terms extends Region {
 				)
 			)
 		);
+
+	/**
+	 * Object-level cache of the term data
+	 */
+	protected $terms = array();
 
 	/**
 	 * Impose some data onto the region
@@ -149,22 +152,52 @@ class Terms extends Region {
 	 */
 	public function get_terms( $taxonomy ) {
 
-		$terms = get_terms( array( $taxonomy ), array( 'hide_empty' => 0, 'fields' => 'id=>slug' ) );
+		$terms = get_terms( array( $taxonomy ), array( 'hide_empty' => 0 ) );
 		if ( is_wp_error( $terms ) ) {
-			return array();
+			$terms = array();
 		}
 
-		return $terms;
+		error_log( var_export( $terms, true ) );
+
+		$this->terms[ $taxonomy ] = $terms;
+
+		return wp_list_pluck( $terms, 'slug' );
 	}
 
 	/**
 	 * Get the value associated with a given term
 	 * 
-	 * @param string $name
+	 * @param string $key
 	 * @return string
 	 */
-	public static function get_term_value( $name ) {
-		return '';
+	public function get_term_value( $key ) {
+
+		$taxonomy = $this->current_schema_attribute_parents[0];
+		$term_slug = $this->current_schema_attribute_parents[1];
+		foreach( $this->terms[ $taxonomy ] as $term ) {
+			if ( $term->slug == $term_slug ) {
+				break;
+			}
+		}
+
+		switch( $key ) {
+
+			case 'parent':
+				$parent = wp_filter_object_list( $this->terms[ $taxonomy ], array( 'term_id' => $term->parent ) );
+				if ( ! empty( $parent ) ) {
+					$value = $parent[0]->slug;
+				} else {
+					$value = '';
+				}
+				break;
+
+			default:
+				$value = $term->$key;
+				break;
+
+		}
+
+		return $value;
 	}
 
 	/**
