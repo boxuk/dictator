@@ -138,8 +138,8 @@ class Terms extends Region {
 	 * 
 	 * @return array
 	 */
-	public static function get_taxonomies() {
-		return get_taxonomies();
+	public function get_taxonomies() {
+		return get_taxonomies( array( 'public' => true ) );
 	}
 
 	/**
