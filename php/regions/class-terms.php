@@ -7,28 +7,30 @@ class Terms extends Region {
 	private $terms;
 
 	protected $schema = array(
-		'_type' => 'prototype',
+		'_type'         => 'prototype',
+		'_get_callback' => 'Dictator\Regions\Terms::get_taxonomies',
 		'_prototype' => array(
-			'_type' => 'prototype',
+			'_type'         => 'prototype',
+			'_get_callback' => 'Dictator\Regions\Terms::get_terms',
 			'_prototype' => array(
 				'_type'      => 'array',
 				'_children'  => array(
 					'name'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => '',
+						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
 						'_update_callback' => '',
 						),
 					'description'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => '',
+						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
 						'_update_callback' => '',
 						),
 					'parent'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => '',
+						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
 						'_update_callback' => '',
 						),
 					)
@@ -132,46 +134,37 @@ class Terms extends Region {
 	}
 
 	/**
-	 * Get the current data for the region
+	 * Get the taxonomies on this site
 	 * 
 	 * @return array
 	 */
-	public function get_current_data() {
+	public static function get_taxonomies() {
+		return get_taxonomies();
+	}
 
-		if ( isset( $this->terms ) ) {
-			return $this->terms;
+	/**
+	 * Get the terms associated with a taxonomy on the site
+	 * 
+	 * @return array
+	 */
+	public static function get_terms( $taxonomy ) {
+
+		$terms = get_terms( array( $taxonomy ), array( 'hide_empty' => 0, 'fields' => 'id=>slug' ) );
+		if ( is_wp_error( $terms ) ) {
+			return array();
 		}
 
-		$this->terms = array();
-		foreach( get_taxonomies() as $taxonomy ) {
+		return $terms;
+	}
 
-			$formatted_taxonomy_terms = array();
-			$taxonomy_terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-
-			foreach( $taxonomy_terms as $taxonomy_term ) {
-
-				if ( $taxonomy_term->parent ) {
-					$parent_term = wp_filter_object_list( $taxonomy_terms, array( 'term_id' => $taxonomy_term->parent ) );
-					$parent_term = array_shift( $parent_term );
-				} else {
-					$parent_term = false;
-				}
-
-				$formatted_taxonomy_terms[ $taxonomy_term->slug ] = array(
-					'name'         => $taxonomy_term->name,
-					'description'  => $taxonomy_term->description,
-					'parent'       => $parent_term ? $parent_term->slug : 
-'',					);
-
-			}
-
-			if ( ! empty( $formatted_taxonomy_terms ) ) {
-				$this->terms[ $taxonomy ] = $formatted_taxonomy_terms;
-			}
-
-		}
-
-		return $this->terms;
+	/**
+	 * Get the value associated with a given term
+	 * 
+	 * @param string $name
+	 * @return string
+	 */
+	public static function get_term_value( $name ) {
+		return '';
 	}
 
 	/**

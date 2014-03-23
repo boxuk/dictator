@@ -13,9 +13,19 @@ abstract class Region {
 	protected $data;
 
 	/**
+	 * Current data in the region
+	 */
+	protected $current_data;
+
+	/**
 	 * Schema for the region
 	 */
 	protected $schema = array();
+
+	/**
+	 * Current schema attribute (used in recursive methods)
+	 */
+	protected $current_schema_attribute = null;
 
 	/**
 	 * Differences between the state file and WordPress
@@ -77,7 +87,15 @@ abstract class Region {
 	 * 
 	 * @return array
 	 */
-	abstract public function get_current_data();
+	public function get_current_data() {
+
+		if ( isset( $this->current_data ) ) {
+			return $this->current_data;
+		}
+
+		$this->current_data = $this->recursively_get_current_data( $this->get_schema() );
+		return $this->current_data;
+	}
 
 	/**
 	 * Get the imposed data for the region
@@ -85,6 +103,66 @@ abstract class Region {
 	public function get_imposed_data() {
 
 		return $this->data;
+
+	}
+
+	/**
+	 * Recursively get the current data for the region
+	 * 
+	 * @return mixed
+	 */
+	private function recursively_get_current_data( $schema ) {
+
+		switch ( $schema['_type'] ) {
+
+			case 'prototype':
+
+				if ( isset( $schema['_get_callback'] ) ) {
+					$prototype_vals = call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+
+					$data = array();
+					foreach( $prototype_vals as $prototype_val ) {
+						$this->current_schema_attribute = $prototype_val;
+						$data[ $prototype_val ] = $this->recursively_get_current_data( $schema['_prototype'] );
+					}
+					return $data;
+				}
+
+				break;
+
+			case 'array':
+
+				// Arrays can have schemas defined for each child attribute
+				if ( ! empty( $schema['_children'] ) ) {
+
+					$data = array();
+					foreach( $schema['_children'] as $attribute => $attribute_schema ) {
+
+						$this->current_schema_attribute = $attribute;
+
+						$data[ $attribute ] = $this->recursively_get_current_data( $attribute_schema );
+
+					}
+					return $data;
+
+				} else {
+
+					if ( isset( $schema['_get_callback'] ) ) {
+						return call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+					}
+					
+				}
+
+			case 'text':
+			case 'email':
+
+				if ( isset( $schema['_get_callback'] ) ) {
+					return call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+				}
+
+				break;
+
+		}
 
 	}
 

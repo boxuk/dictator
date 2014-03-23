@@ -10,51 +10,40 @@ class Site_Settings extends Region {
 			'title'         => array(
 				'_type'             => 'text',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			'description'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			'date_format'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			'time_format'   => array(
 				'_type'             => 'text',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			'active_theme'  => array(
 				'_type'             => 'text',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			'active_plugins' => array(
 				'_type'             => 'array',
 				'_required'         => false,
-				'_get_callback'     => '',
-				'_update_callback'  => '',
+				'_get_callback'     => '\Dictator\Regions\Site_Settings::get',
+				'_update_callback'  => '\Dictator\Regions\Site_Settings::update',
 				),
 			),
-		);
-
-	private $options;
-
-	private $fields = array(
-		'title'          => 'blogname',
-		'description'    => 'blogdescription',
-		'date_format'    => 'date_format',
-		'time_format'    => 'time_format',
-		'active_theme'   => 'stylesheet',
-		'active_plugins' => 'active_plugins', 
 		);
 
 	/**
@@ -127,23 +116,73 @@ class Site_Settings extends Region {
 	}
 
 	/**
-	 * Get the current data for the region
+	 * Get the value for the setting
 	 * 
-	 * @return array
+	 * @param string $name
+	 * @return mixed
 	 */
-	public function get_current_data() {
+	public static function get( $name ) {
 
-		$this->options = array();
-		foreach( $this->fields as $yml_field => $model_field ) {
+		switch ( $name ) {
+			case 'title':
+				$value = get_option( 'blogname' );
+				break;
 
-			$value = get_option( $model_field );
-			if ( $value ) {
-				$this->options[ $yml_field ] = $value;
-			}
+			case 'description':
+				$value = get_option( 'blogdescription' );
+				break;
 
+			case 'active_theme':
+				$value = get_option( 'stylesheet' );
+				break;
+			
+			default:
+				$value = get_option( $name );
+				break;
 		}
 
-		return $this->options;
+		return $value;
+
+	}
+
+	/**
+	 * Update the value for the setting
+	 * 
+	 * @param string $name
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public static function update( $name, $value ) {
+
+		switch ( $name ) {
+			case 'title':
+				update_option( 'blogname', $value );
+				break;
+
+			case 'description':
+				update_option( 'blogdescription', $value );
+				break;
+
+			case 'active_theme':
+				switch_theme( $value );
+				break;
+
+			case 'active_plugins':
+
+				foreach( $value as $plugin ) {
+
+					if ( ! is_plugin_active( $plugin ) ) {
+						activate_plugin( $plugin );
+					}
+
+				}
+				break;
+			
+			default:
+				update_option( $name, $value );
+				break;
+		}
+
 	}
 
 }
