@@ -8,29 +8,29 @@ class Terms extends Region {
 
 	protected $schema = array(
 		'_type'         => 'prototype',
-		'_get_callback' => 'Dictator\Regions\Terms::get_taxonomies',
+		'_get_callback' => 'get_taxonomies',
 		'_prototype' => array(
 			'_type'         => 'prototype',
-			'_get_callback' => 'Dictator\Regions\Terms::get_terms',
+			'_get_callback' => 'get_terms',
 			'_prototype' => array(
 				'_type'      => 'array',
 				'_children'  => array(
 					'name'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
+						'_get_callback'    => 'get_term_value',
 						'_update_callback' => '',
 						),
 					'description'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
+						'_get_callback'    => 'get_term_value',
 						'_update_callback' => '',
 						),
 					'parent'   => array(
 						'_type'            => 'text',
 						'_required'        => false,
-						'_get_callback'    => 'Dictator\Regions\Terms::get_term_value',
+						'_get_callback'    => 'get_term_value',
 						'_update_callback' => '',
 						),
 					)
@@ -147,7 +147,7 @@ class Terms extends Region {
 	 * 
 	 * @return array
 	 */
-	public static function get_terms( $taxonomy ) {
+	public function get_terms( $taxonomy ) {
 
 		$terms = get_terms( array( $taxonomy ), array( 'hide_empty' => 0, 'fields' => 'id=>slug' ) );
 		if ( is_wp_error( $terms ) ) {

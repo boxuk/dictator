@@ -118,7 +118,7 @@ abstract class Region {
 			case 'prototype':
 
 				if ( isset( $schema['_get_callback'] ) ) {
-					$prototype_vals = call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+					$prototype_vals = call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 
 					$data = array();
 					foreach( $prototype_vals as $prototype_val ) {
@@ -148,7 +148,7 @@ abstract class Region {
 				} else {
 
 					if ( isset( $schema['_get_callback'] ) ) {
-						return call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+						return call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 					}
 					
 				}
@@ -157,7 +157,7 @@ abstract class Region {
 			case 'email':
 
 				if ( isset( $schema['_get_callback'] ) ) {
-					return call_user_func( $schema['_get_callback'], $this->current_schema_attribute );
+					return call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 				}
 
 				break;
