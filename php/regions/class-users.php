@@ -82,7 +82,7 @@ abstract class Users extends Region {
 			$args['blog_id'] = get_current_blog_id();
 		}
 
-		$this->users = get_users();
+		$this->users = get_users( $args );
 		return wp_list_pluck( $this->users, 'user_login' );
 	}
 
