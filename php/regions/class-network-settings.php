@@ -12,6 +12,11 @@ class Network_Settings extends Region {
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
+			'admin_email'         => array(
+				'_type'             => 'email',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
 			'super_admins'   => array(
 				'_type'             => 'array',
 				'_required'         => false,
@@ -22,8 +27,28 @@ class Network_Settings extends Region {
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
+			'notify_registration' => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
 			'upload_filetypes' => array(
 				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'site_unlimited_upload' => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'site_upload_space' => array(
+				'_type'             => 'numeric',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'site_max_upload'   => array(
+				'_type'             => 'numeric',
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
@@ -44,10 +69,14 @@ class Network_Settings extends Region {
 	 * Correct core's confusing option names
 	 */
 	protected $options_map = array(
-		'title'              => 'site_name',
-		'super_admins'       => 'site_admins',
-		'enabled_themes'     => 'allowedthemes',
-		'active_plugins'     => 'active_sitewide_plugins',
+		'title'                   => 'site_name',
+		'super_admins'            => 'site_admins',
+		'notify_registration'     => 'registrationnotification',
+		'site_unlimited_upload'   => 'upload_space_check_disabled',
+		'site_upload_space'       => 'blog_upload_space',
+		'site_max_upload'         => 'fileupload_maxk',
+		'enabled_themes'          => 'allowedthemes',
+		'active_plugins'          => 'active_sitewide_plugins',
 		);
 
 	/**
@@ -79,6 +108,14 @@ class Network_Settings extends Region {
 				case 'active_sitewide_plugins':
 					foreach( $value as $plugin ) {
 						activate_plugin( $plugin, '', true );
+					}
+					break;
+
+				case 'registrationnotification':
+					if ( $value ) {
+						update_site_option( $key, 'yes' );
+					} else {
+						update_site_option( $key, 'no' );
 					}
 					break;
 				
@@ -122,7 +159,7 @@ class Network_Settings extends Region {
 		if ( array_key_exists( $name, $this->options_map ) ) {
 			$name = $this->options_map[ $name ];
 		}
-		
+
 		$value = get_site_option( $name );
 
 		// Data transformation if we need to
@@ -131,11 +168,15 @@ class Network_Settings extends Region {
 			case 'active_sitewide_plugins':
 				$value = array_keys( $value );
 				break;
+
+			case 'registrationnotification':
+				$value = ( 'yes' === $value ) ? true : false;
+				break;
+
 		}
 
 		return $value;
 
 	}
-
 
 }

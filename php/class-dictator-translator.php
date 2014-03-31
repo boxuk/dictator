@@ -118,6 +118,22 @@ class Translator {
 					
 				break;
 
+			case 'bool':
+
+				if ( ! is_bool( $state_data ) ) {
+					$this->state_data_errors[] = sprintf( "'%s' needs to be true or false.", $this->current_schema_attribute );
+				}
+
+				break;
+
+			case 'numeric':
+
+				if ( ! is_numeric( $state_data ) ) {
+					$this->state_data_errors[] = sprintf( "'%s' needs to be numeric.", $this->current_schema_attribute );
+				}
+
+				break;
+
 			case 'text':
 
 				// Nothing to do here
