@@ -16,6 +16,9 @@ Feature: Site Settings Region
     When I run `wp dictator impose site-state.yml`
     Then STDOUT should not be empty
 
+    When I run `wp dictator compare site-state.yml`
+    Then STDOUT should be empty
+
     When I run `wp option get blogname`
     Then STDOUT should be:
       """

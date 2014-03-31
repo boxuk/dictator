@@ -228,14 +228,15 @@ class Network_Sites extends Region {
 			'current'         => array(),
 		);
 
-		$matched_site = $this->get_site( $site_slug );
+		$sites = $this->get_current_data();
 
 		// If there wasn't a matched site, the site must not exist
-		if ( empty( $matched_site ) ) {
+		if ( empty( $sites[ $site_slug ] ) ) {
 			return $site_result;
 		}
+		
 
-		$site_result['current'] = $matched_site;
+		$site_result['current'] = $sites[ $site_slug ];
 
 		if ( \Dictator::array_diff_recursive( $site_result['dictated'], $site_result['current'] ) ) {
 			return $site_result;

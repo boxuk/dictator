@@ -19,6 +19,9 @@ Feature: Site / Network Users Region
     When I run `wp dictator impose site-users.yml`
     Then STDOUT should not be empty
 
+    When I run `wp dictator compare site-users.yml`
+    Then STDOUT should be empty
+
     When I run `wp user list --fields=display_name,user_email,roles`
     Then STDOUT should be a table containing rows:
       | display_name   | user_email            | roles             |

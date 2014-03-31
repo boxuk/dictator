@@ -14,6 +14,9 @@ Feature: Network Sites Region
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
 
+    When I run `wp dictator compare network-state.yml`
+    Then STDOUT should be empty
+
     When I run `wp --url=example.com/enolagay option get blogname`
     Then STDOUT should be:
       """
