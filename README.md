@@ -1,5 +1,7 @@
 # Dictator
 
+[![Build Status](https://travis-ci.org/danielbachhuber/dictator.png)](https://travis-ci.org/danielbachhuber/dictator)
+
 Dictator controls the State of WordPress. Strongly influenced by [Salt](http://www.saltstack.com/), Dictator permits configuration attributes stored in YAML state files to be *imposed* upon WordPress.
 
 Dictator's primary concern is to permit the expression of how WordPress is configured as YAML state files. It understands WordPress in terms of *states*. States are collections of *regions*. Each state file has the state declaration, and any tracked configuration details for each region.
