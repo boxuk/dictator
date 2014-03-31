@@ -29,6 +29,11 @@ class Network_Sites extends Region {
 						'_required'         => false,
 						'_get_callback'     => 'get_site_value',
 						),
+					'users'             => array(
+						'_type'             => 'array',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
 					)
 				)
 		);
