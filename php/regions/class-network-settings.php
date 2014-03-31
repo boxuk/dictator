@@ -40,6 +40,9 @@ class Network_Settings extends Region {
 			),
 		);
 
+	/**
+	 * Correct core's confusing option names
+	 */
 	protected $options_map = array(
 		'title'              => 'site_name',
 		'super_admins'       => 'site_admins',
