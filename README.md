@@ -6,7 +6,17 @@ Dictator controls the State of WordPress. Strongly influenced by [Salt](http://w
 
 Dictator's primary concern is to permit the expression of how WordPress is configured as YAML state files. It understands WordPress in terms of *states*. States are collections of *regions*. Each state file has the state declaration, and any tracked configuration details for each region.
 
-For example, the `site` state includes the `settings`, `users`, and `terms` regions. Running `wp dictator export site site-state.yml` against production data will export the production state into a human-readable state file. Apply the state file locally with `wp dictator impose site-state.yml` and you've replicated production without having to download the database.
+For example, the `site` state includes the `settings`, `users`, and `terms` regions. Running `wp dictator export site site-state.yml` against production data will export the production state into a human-readable state file:
+
+	state: site
+	settings:
+	  title: Dictator
+	  description: Just another WordPress site controlled by Dictator
+	  date_format: F j, Y
+	  time_format: g:i a
+	  active_theme: twentyfourteen
+
+Apply the state file locally with `wp dictator impose site-state.yml` and you've replicated production without having to download the database.
 
 ## Installing
 
