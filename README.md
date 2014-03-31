@@ -34,3 +34,7 @@ Dictator comprises these WP-CLI commands:
 * `dictator validate <file>` - Validate the provided state file against each region's schema.
 
 First time user? Try Dictator out by calling `wp dictator export site site-state.yml`, making a change to the state file, and seeing a colorized diff of how it compares with `wp dictator compare site-state.yml`.
+
+## Extending
+
+Even though Dictator is in its infancy, it was written with extensibility in mind. New states can be registered with `Dictator::add_state();`, and can comprise a selection of existing or custom regions. Write a state / region for your plugin / theme to make it easy for your users to export / impose settings.
