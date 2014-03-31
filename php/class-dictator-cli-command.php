@@ -18,6 +18,9 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 * <file>
 	 * : Where the state should be exported to
 	 * 
+	 * [--regions=<regions>]
+	 * : Limit the export to one or more regions.
+	 * 
 	 * [--force]
 	 * : Forcefully overwrite an existing state file if one exists.
 	 * 
@@ -36,9 +39,18 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( "Invalid state supplied." );
 		}
 
+		$limited_regions = ! empty( $assoc_args['regions'] ) ? explode( ',', $assoc_args['regions'] ) : array();
+
 		// Build the state's data
 		$state_data = array( 'state' => $state );
-		foreach( $state_obj->get_regions() as $region_name => $region_obj ) {
+		foreach( $state_obj->get_regions() as $region_obj ) {
+
+			$region_name = $state_obj->get_region_name( $region_obj );
+
+			if ( $limited_regions && ! in_array( $region_name, $limited_regions ) ) {
+				continue;
+			}
+
 			$state_data[ $region_name ] = $region_obj->get_current_data();
 		}
 
@@ -54,6 +66,9 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 * 
 	 * <file>
 	 * : State file to impose
+	 * 
+	 * [--regions=<regions>]
+	 * : Limit the imposition to one or more regions.
 	 *
 	 * @subcommand impose
 	 */
@@ -67,13 +82,21 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 
 		$state_obj = Dictator::get_state_obj( $yaml['state'], $yaml );
 
+		$limited_regions = ! empty( $assoc_args['regions'] ) ? explode( ',', $assoc_args['regions'] ) : array();
+
 		foreach( $state_obj->get_regions() as $region_obj ) {
+
+			$region_name = $state_obj->get_region_name( $region_obj );
+
+			if ( $limited_regions && ! in_array( $region_name, $limited_regions ) ) {
+				continue;
+			}
 
 			if ( $region_obj->is_under_accord() ) {
 				continue;
 			}
 
-			WP_CLI::line( sprintf( '%s:', $state_obj->get_region_name( $region_obj ) ) );
+			WP_CLI::line( sprintf( '%s:', $region_name ) );
 
 			// Render the differences for the region
 			$differences = $region_obj->get_differences();
