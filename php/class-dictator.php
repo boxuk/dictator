@@ -55,6 +55,20 @@ class Dictator {
 	}
 
 	/**
+	 * Get all of the states registered with Dictator
+	 *
+	 * @return array
+	 */
+	public static function get_states() {
+
+		if ( self::called_statically() ) {
+			return Dictator::get_instance()->get_states();
+		}
+
+		return self::$instance->states;
+	}
+
+	/**
 	 * Whether or not the state is valid
 	 * 
 	 * @param string $name Name of the state
