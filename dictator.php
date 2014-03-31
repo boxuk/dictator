@@ -1,6 +1,6 @@
 <?php
 /**
- * The Dictator controls the State of WordPress with WP-CLI
+ * Dictator controls the State of WordPress with WP-CLI
  * 
  * Use wisely.
  */
