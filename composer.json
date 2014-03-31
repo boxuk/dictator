@@ -5,7 +5,9 @@
     "authors": [
         {
             "name": "Daniel Bachhuber",
-            "email": "d@danielbachhuber.com"
+            "email": "d@danielbachhuber.com",
+            "homepage": "http://danielbachhuber.com",
+            "role": "Developer"
         }
     ],
     "minimum-stability": "dev",

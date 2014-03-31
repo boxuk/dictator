@@ -1,14 +1,14 @@
 <?php
 
 /**
- * The Dictator controls the State of WordPress.
+ * Dictator controls the State of WordPress.
  */
 class Dictator_CLI_Command extends WP_CLI_Command {
 
 	private $output_nesting_level = 0;
 
 	/**
-	 * Export a state of WordPress
+	 * Export the State of WordPress to a state file.
 	 * 
 	 * ## OPTIONS
 	 * 
@@ -48,7 +48,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Impose a state onto WordPress
+	 * Impose a given state file onto WordPress.
 	 * 
 	 * ## OPTIONS
 	 * 
@@ -94,7 +94,8 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Compare the State of WordPress to a state file
+	 * Compare a given state file to the State of WordPress.
+	 * Produces a colorized diff if differences, otherwise empty output.
 	 *
 	 * ## OPTIONS
 	 * 
@@ -133,7 +134,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Validate a state file
+	 * Validate the provided state file against each region's schema.
 	 * 
 	 * ## OPTIONS
 	 * 
@@ -175,7 +176,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Validate the provided state file
+	 * Validate the provided state file against each region's schema.
 	 *
 	 * @param array $yaml Data from the state file
 	 */
