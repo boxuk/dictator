@@ -4,13 +4,42 @@ namespace Dictator\Regions;
 
 class Terms extends Region {
 
-	private $terms;
-
-	private $fields = array(
-		'name'         => 'name',
-		'parent'       => 'parent',
-		'description'  => 'description',
+	protected $schema = array(
+		'_type'         => 'prototype',
+		'_get_callback' => 'get_taxonomies',
+		'_prototype' => array(
+			'_type'         => 'prototype',
+			'_get_callback' => 'get_terms',
+			'_prototype' => array(
+				'_type'      => 'array',
+				'_children'  => array(
+					'name'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => 'get_term_value',
+						'_update_callback' => '',
+						),
+					'description'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => 'get_term_value',
+						'_update_callback' => '',
+						),
+					'parent'   => array(
+						'_type'            => 'text',
+						'_required'        => false,
+						'_get_callback'    => 'get_term_value',
+						'_update_callback' => '',
+						),
+					)
+				)
+			)
 		);
+
+	/**
+	 * Object-level cache of the term data
+	 */
+	protected $terms = array();
 
 	/**
 	 * Impose some data onto the region
@@ -39,29 +68,25 @@ class Terms extends Region {
 				$term = get_term_by( 'id', $ret['term_id'], $key );
 			}
 
-			foreach( $this->fields as $yml_field => $model_field ) {
-
-				if ( ! isset( $term_values[ $yml_field ] ) ) {
-					continue;
-				}
+			foreach( $term_values as $yml_field => $term_value ) {
 
 				switch ( $yml_field ) {
 					case 'name':
 					case 'description':
 
-						if ( $term_values[ $yml_field ] == $term->$model_field ) {
+						if ( $term_value == $term->$yml_field ) {
 							break;
 						}
 
-						wp_update_term( $term->term_id, $key, array( $model_field => $term_values[ $yml_field ] ) );
+						wp_update_term( $term->term_id, $key, array( $yml_field => $term_value ) );
 
 						break;
 
 					case 'parent':
 
-						if ( $term_values[ $yml_field ] ) {
+						if ( $term_value ) {
 							
-							$parent_term = get_term_by( 'slug', $term_values[ $yml_field ], $key );
+							$parent_term = get_term_by( 'slug', $term_value, $key );
 							if ( ! $parent_term ) {
 								return new \WP_Error( 'invalid-parent', sprintf( "Parent is invalid for term: %s", $slug ) );
 							}
@@ -70,9 +95,9 @@ class Terms extends Region {
 								break;
 							}
 
-							wp_update_term( $term->term_id, $key, array( $model_field => $parent_term->term_id ) );
-						} else if ( ! $term_values[ $yml_field ] && $term->parent ) {
-							wp_update_term( $term->term_id, $key, array( $model_field => 0 ) );
+							wp_update_term( $term->term_id, $key, array( 'parent' => $parent_term->term_id ) );
+						} else if ( ! $term_value && $term->parent ) {
+							wp_update_term( $term->term_id, $key, array( 'parent' => 0 ) );
 						}
 
 						break;
@@ -108,46 +133,70 @@ class Terms extends Region {
 	}
 
 	/**
-	 * Get the current data for the region
+	 * Get the taxonomies on this site
 	 * 
 	 * @return array
 	 */
-	public function get_current_data() {
+	public function get_taxonomies() {
+		return get_taxonomies( array( 'public' => true ) );
+	}
 
-		if ( isset( $this->terms ) ) {
-			return $this->terms;
+	/**
+	 * Get the terms associated with a taxonomy on the site
+	 * 
+	 * @return array
+	 */
+	public function get_terms( $taxonomy ) {
+
+		$terms = get_terms( array( $taxonomy ), array( 'hide_empty' => 0 ) );
+		if ( is_wp_error( $terms ) ) {
+			$terms = array();
 		}
 
-		$this->terms = array();
-		foreach( get_taxonomies() as $taxonomy ) {
+		$this->terms[ $taxonomy ] = $terms;
 
-			$formatted_taxonomy_terms = array();
-			$taxonomy_terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+		return wp_list_pluck( $terms, 'slug' );
+	}
 
-			foreach( $taxonomy_terms as $taxonomy_term ) {
+	/**
+	 * Get the value associated with a given term
+	 * 
+	 * @param string $key
+	 * @return string
+	 */
+	public function get_term_value( $key ) {
 
-				if ( $taxonomy_term->parent ) {
-					$parent_term = wp_filter_object_list( $taxonomy_terms, array( 'term_id' => $taxonomy_term->parent ) );
-					$parent_term = array_shift( $parent_term );
-				} else {
-					$parent_term = false;
+		$taxonomy = $this->current_schema_attribute_parents[0];
+		$term_slug = $this->current_schema_attribute_parents[1];
+		foreach( $this->terms[ $taxonomy ] as $term ) {
+			if ( $term->slug == $term_slug ) {
+				break;
+			}
+		}
+
+		switch( $key ) {
+
+			case 'parent':
+				$parent = false;
+				foreach( $this->terms[ $taxonomy ] as $maybe_parent_term ) {
+					if ( $maybe_parent_term->term_id === $term->parent ) {
+						$parent = $maybe_parent_term;
+					}
 				}
+				if ( ! empty( $parent ) ) {
+					$value = $parent->slug;
+				} else {
+					$value = '';
+				}
+				break;
 
-				$formatted_taxonomy_terms[ $taxonomy_term->slug ] = array(
-					'name'         => $taxonomy_term->name,
-					'description'  => $taxonomy_term->description,
-					'parent'       => $parent_term ? $parent_term->slug : 
-'',					);
-
-			}
-
-			if ( ! empty( $formatted_taxonomy_terms ) ) {
-				$this->terms[ $taxonomy ] = $formatted_taxonomy_terms;
-			}
+			default:
+				$value = $term->$key;
+				break;
 
 		}
 
-		return $this->terms;
+		return $value;
 	}
 
 	/**

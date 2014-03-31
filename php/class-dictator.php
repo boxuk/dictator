@@ -1,7 +1,5 @@
 <?php
 
-use \RomaricDrigon\MetaYaml\MetaYaml;
-
 class Dictator {
 
 	private static $instance;
@@ -40,19 +38,17 @@ class Dictator {
 	 * 
 	 * @param string $name Name of the state
 	 * @param string $class Class that represents state's relationship with WP
-	 * @param string $schema Schema file
 	 */
-	public static function add_state( $name, $class, $schema ) {
+	public static function add_state( $name, $class ) {
 
 		if ( self::called_statically() ) {
-			return Dictator::get_instance()->add_state( $name, $class, $schema );
+			return Dictator::get_instance()->add_state( $name, $class );
 		}
 
 		// @todo validate the class is callable and the schema exists
 
 		$state = array(
 			'class'      => $class,
-			'schema'     => $schema,
 			);
 
 		self::$instance->states[ $name ] = $state;

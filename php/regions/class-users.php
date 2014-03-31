@@ -4,13 +4,45 @@ namespace Dictator\Regions;
 
 abstract class Users extends Region {
 
-	private $users;
-
-	private $fields = array(
-		'display_name'   => 'display_name',
-		'email'          => 'user_email',
-		'role'           => 'role',
+	protected $schema = array(
+		'_type'         => 'prototype',
+		'_get_callback' => 'get_users',
+		'_prototype'    => array(
+			'_type'        => 'array',
+			'_children'    => array(
+				'display_name'   => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
+				'first_name'     => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
+				'last_name'      => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
+				'email'          => array(
+					'_type'             => 'email',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
+				'role'           => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
+				)
+			)
 		);
+
+	/**
+	 * Object-level cache for user data
+	 */
+	protected $users;
 
 	/**
 	 * Get the difference between the state file and WordPress
@@ -36,15 +68,13 @@ abstract class Users extends Region {
 	}
 
 	/**
-	 * Get the current data for the user region
-	 * 
+	 * Get the users on the network on the site
+	 *
 	 * @return array
 	 */
-	public function get_current_data() {
+	protected function get_users() {
 
-		if ( ! empty( $this->users ) ) {
-			return $this->users;
-		}
+		$args = array();
 
 		if ( 'network' == $this->get_context() ) {
 			$args['blog_id'] = 0; // all users
@@ -52,41 +82,45 @@ abstract class Users extends Region {
 			$args['blog_id'] = get_current_blog_id();
 		}
 
-		$users = get_users( $args );
-		$this->users = array();
-		foreach( $users as $user ) {
+		$this->users = get_users( $args );
+		return wp_list_pluck( $this->users, 'user_login' );
+	}
 
-			foreach( $this->fields as $yml_field => $model_field ) {
+	/**
+	 * Get the value from a user object
+	 * 
+	 * @param string $key
+	 * @return mixed
+	 */
+	protected function get_user_value( $key ) {
 
-				// Users have no role in the network context
-				// @todo needs a better abstraction
-				if ( 'role' == $yml_field && 'network' == $this->get_context() ) {
-					continue;
-				}
-
-				switch ( $yml_field ) {
-
-					case 'display_name':
-					case 'email':
-
-						$value = $user->$model_field;
-			
-						break;
-
-					case 'role':
-
-						$value = array_shift( $user->roles );
-
-						break;
-
-				}
-
-				$this->users[ $user->user_login ][ $yml_field ] = $value;
+		$user_login = $this->current_schema_attribute_parents[0];
+		foreach( $this->users as $user ) {
+			if ( $user->user_login == $user_login ) {
+				break;
 			}
-
 		}
 
-		return $this->users;
+		switch ( $key ) {
+
+			case 'email':
+				$value = $user->user_email;
+				break;
+
+			case 'role':
+				if ( 'site' == $this->get_context() ) {
+					$value = array_shift( $user->roles );
+				} else {
+					$value = '';
+				}
+				break;
+			
+			default:
+				$value = $user->$key;
+				break;
+		}
+
+		return $value;
 	}
 
 	/**
@@ -128,7 +162,15 @@ abstract class Users extends Region {
 				continue;
 			}
 
-			$model_field = $this->fields[ $yml_field ];
+			switch ( $yml_field ) {
+				case 'email':
+					$model_field = 'user_email';
+					break;
+				
+				default:
+					$model_field = $yml_field;
+					break;
+			}
 
 			if ( $user->$model_field != $single_value ) {
 				wp_update_user( array( 'ID' => $user->ID, $model_field => $single_value ) );

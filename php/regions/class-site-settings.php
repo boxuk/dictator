@@ -4,15 +4,40 @@ namespace Dictator\Regions;
 
 class Site_Settings extends Region {
 
-	private $options;
-
-	private $fields = array(
-		'title'          => 'blogname',
-		'description'    => 'blogdescription',
-		'date_format'    => 'date_format',
-		'time_format'    => 'time_format',
-		'active_theme'   => 'stylesheet',
-		'active_plugins' => 'active_plugins', 
+	protected $schema = array(
+		'_type'      => 'array',
+		'_children'  => array(
+			'title'         => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'description'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'date_format'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'time_format'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'active_theme'  => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'active_plugins' => array(
+				'_type'             => 'array',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			),
 		);
 
 	/**
@@ -30,12 +55,16 @@ class Site_Settings extends Region {
 
 			switch ( $key ) {
 
+				case 'title':
+					update_option( 'blogname', $value );
+					break;
+
+				case 'description':
+					update_option( 'blogdescription', $value );
+					break;
+
 				case 'active_theme':
-
-					if ( $value !== get_option( 'stylesheet' ) ) {
-						switch_theme( $value );
-					}
-
+					switch_theme( $value );
 					break;
 
 				case 'active_plugins':
@@ -47,16 +76,10 @@ class Site_Settings extends Region {
 						}
 
 					}
-
 					break;
 				
 				default:
-				
-					$model_key = $this->fields[ $key ];
-					if ( $value != get_option( $this->fields[ $key ] ) ) {
-						update_option( $model_key, $value );
-					}
-
+					update_option( $name, $value );
 					break;
 			}
 
@@ -85,23 +108,33 @@ class Site_Settings extends Region {
 	}
 
 	/**
-	 * Get the current data for the region
+	 * Get the value for the setting
 	 * 
-	 * @return array
+	 * @param string $name
+	 * @return mixed
 	 */
-	public function get_current_data() {
+	public function get( $name ) {
 
-		$this->options = array();
-		foreach( $this->fields as $yml_field => $model_field ) {
+		switch ( $name ) {
+			case 'title':
+				$value = get_option( 'blogname' );
+				break;
 
-			$value = get_option( $model_field );
-			if ( $value ) {
-				$this->options[ $yml_field ] = $value;
-			}
+			case 'description':
+				$value = get_option( 'blogdescription' );
+				break;
 
+			case 'active_theme':
+				$value = get_option( 'stylesheet' );
+				break;
+			
+			default:
+				$value = get_option( $name );
+				break;
 		}
 
-		return $this->options;
+		return $value;
+
 	}
 
 }

@@ -8,16 +8,40 @@ namespace Dictator\Regions;
 
 class Network_Sites extends Region {
 
-	protected $sites;
-
-	protected $site_fields = array(
-		'title',
-		'description',
-		'active_theme',
-		'users',
+	protected $schema = array(
+		'_type'         => 'prototype',
+		'_get_callback' => 'get_sites',
+		'_prototype'    => array(
+			'_type'        => 'array',
+				'_children'    => array(
+					'title'   => array(
+						'_type'             => 'text',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
+					'description'     => array(
+						'_type'             => 'text',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
+					'active_theme'      => array(
+						'_type'             => 'text',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
+					'users'             => array(
+						'_type'             => 'array',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
+					)
+				)
 		);
 
-	protected $blog_ids = array();
+	/**
+	 * Object-level cache
+	 */
+	protected $sites;
 
 	/**
 	 * Get the differences between declared sites and sites on network
@@ -63,7 +87,7 @@ class Network_Sites extends Region {
 			}
 		}
 
-		switch_to_blog( $this->blog_ids[ $key ] );
+		switch_to_blog( $site['blog_id'] );
 		foreach( $value as $field => $single_value ) {
 
 			switch ( $field ) {
@@ -75,7 +99,6 @@ class Network_Sites extends Region {
 						'title'         => 'blogname',
 						'description'   => 'blogdescription',
 						);
-
 					update_option( $map[ $field ], $single_value );
 					break;
 
@@ -110,14 +133,14 @@ class Network_Sites extends Region {
 	}
 
 	/**
-	 * Get the current data for the site region
+	 * Get a list of all the sites on the network
 	 * 
 	 * @return array
 	 */
-	public function get_current_data() {
-	
-		if ( isset( $this->sites ) ) {
-			return $this->sites;
+	protected function get_sites() {
+
+		if ( is_array( $this->sites ) ) {
+			return array_keys( $this->sites );
 		}
 
 		$args = array(
@@ -136,54 +159,59 @@ class Network_Sites extends Region {
 
 		$this->sites = array();
 		foreach( $sites as $site ) {
-
-			$site_slug = str_replace( '.' . get_current_site()->domain, '', $site['domain'] );
-
-			$this->blog_ids[ $site_slug ] = $site['blog_id'];
-
-			switch_to_blog( $site['blog_id'] );
-			foreach( $this->site_fields as $field ) {
-
-				switch ( $field ) {
-
-					case 'title':
-					case 'description':
-
-						$map = array(
-							'title'         => 'blogname',
-							'description'   => 'blogdescription',
-							);
-
-						$value = get_option( $map[ $field ] );
-						break;
-
-					case 'active_theme':
-
-						$value = get_option( 'stylesheet' );
-
-						break;
-
-					case 'users':
-
-						$value = array();
-
-						$site_users = get_users();
-						foreach( $site_users as $site_user ) {
-							$value[ $site_user->user_login ] = array_shift( $site_user->roles );
-						}
-
-						break;
-
-				}
-
-				$this->sites[ $site_slug ][ $field ] = $value;
-
+			if ( is_subdomain_install() ) {
+				$site_slug = str_replace( '.' . get_current_site()->domain, '', $site['domain'] );
+			} else {
+				$site_slug = trim( $site['path'], '/' );
 			}
-			restore_current_blog();
+			$this->sites[ $site_slug ] = $site;
+		}
+		return array_keys( $this->sites );
+	}
+
+	/**
+	 * Get the value on a given site
+	 *
+	 * @param string $key
+	 * @return mixed
+	 */
+	protected function get_site_value( $key ) {
+
+		$site_slug = $this->current_schema_attribute_parents[0];
+		$site = $this->get_site( $site_slug );
+
+		switch_to_blog( $site['blog_id'] );
+
+		switch ( $key ) {
+
+			case 'title':
+			case 'description':
+				$map = array(
+					'title'         => 'blogname',
+					'description'   => 'blogdescription',
+					);
+				$value = get_option( $map[ $key ] );
+				break;
+
+			case 'active_theme':
+				$value = get_option( 'stylesheet' );
+				break;
+
+			case 'users':
+
+				$value = array();
+
+				$site_users = get_users();
+				foreach( $site_users as $site_user ) {
+					$value[ $site_user->user_login ] = array_shift( $site_user->roles );
+				}
+				break;
 
 		}
+		restore_current_blog();
 
-		return $this->sites;
+		return $value;
+
 	}
 
 	/**
@@ -225,9 +253,10 @@ class Network_Sites extends Region {
 	 */
 	protected function get_site( $site_slug ) {
 
-		$sites = $this->get_current_data();
-		if ( ! empty( $sites[ $site_slug ] ) ) {
-			return $sites[ $site_slug ];
+		// Maybe prime the cache
+		$this->get_sites();
+		if ( ! empty( $this->sites[ $site_slug ] ) ) {
+			return $this->sites[ $site_slug ];
 		}
 
 		return false;
