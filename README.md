@@ -24,11 +24,13 @@ Dictator is a series of [WP-CLI](http://wp-cli.org) commands.
 
 Once WP-CLI is installed, Dictator can be installed via [Composer](https://getcomposer.org/), or WP-CLI's `--require` attribute.
 
-
-
 ## Using
+
+Dictator comprises these WP-CLI commands:
 
 * `dictator compare <file>` - Compare a given state file to the State of WordPress. Produces a colorized diff if differences, otherwise empty output.
 * `dictator export <state> <file> [--force]` - Export the State of WordPress to a state file. 
 * `dictator impose <file>` - Impose a given state file onto WordPress.
 * `dictator validate <file>` - Validate the provided state file against each region's schema.
+
+First time user? Try Dictator out by calling `wp dictator export site site-state.yml`, making a change to the state file, and seeing a colorized diff of how it compares with `wp dictator compare site-state.yml`.
