@@ -156,6 +156,31 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * List registered states.
+	 * 
+	 * @subcommand list-states
+	 */
+	public function list_states( $args, $assoc_args ) {
+
+		$states = Dictator::get_states();
+
+		$items = array();
+		foreach( $states as $name => $attributes ) {
+
+			$state_obj = new $attributes[ 'class' ];
+			$regions = implode( ',', array_keys( $state_obj->get_regions() ) );
+
+			$items[] = (object) array(
+				'state'       => $name,
+				'regions'     => $regions,
+				);
+		}
+
+		$formatter = new \WP_CLI\Formatter( $assoc_args, array( 'state', 'regions' ) );
+		$formatter->display_items( $items );
+	}
+
+	/**
 	 * Load a given Yaml state file
 	 *
 	 * @param string $file
