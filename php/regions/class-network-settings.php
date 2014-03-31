@@ -17,7 +17,34 @@ class Network_Settings extends Region {
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
+			'registration' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'upload_filetypes' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'enabled_themes' => array(
+				'_type'             => 'array',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'active_plugins' => array(
+				'_type'             => 'array',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
 			),
+		);
+
+	protected $options_map = array(
+		'title'              => 'site_name',
+		'super_admins'       => 'site_admins',
+		'enabled_themes'     => 'allowedthemes',
+		'active_plugins'     => 'active_sitewide_plugins',
 		);
 
 	/**
@@ -33,18 +60,27 @@ class Network_Settings extends Region {
 
 		foreach( $options as $key => $value ) {
 
-			switch ( $key ) {
+			if ( array_key_exists( $key, $this->options_map ) ) {
+				$key = $this->options_map[ $key ];
+			}
 
-				case 'title':
-					update_site_option( 'site_name', $value );
+			switch ( $key ) {
+				case 'allowedthemes':
+					$allowedthemes = array();
+					foreach( $value as $theme ) {
+						$allowedthemes[ $theme ] = true;
+					}
+					update_site_option( 'allowedthemes', $allowedthemes );
 					break;
 
-				case 'super_admins':
-					update_site_option( 'site_admins', $value );
+				case 'active_sitewide_plugins':
+					foreach( $value as $plugin ) {
+						activate_plugin( $plugin, '', true );
+					}
 					break;
 				
 				default:
-					update_site_option( $name, $value );
+					update_site_option( $key, $value );
 					break;
 			}
 
@@ -80,17 +116,17 @@ class Network_Settings extends Region {
 	 */
 	public function get( $name ) {
 
-		switch ( $name ) {
-			case 'title':
-				$value = get_site_option( 'site_name' );
-				break;
+		if ( array_key_exists( $name, $this->options_map ) ) {
+			$name = $this->options_map[ $name ];
+		}
+		
+		$value = get_site_option( $name );
 
-			case 'super_admins':
-				$value = get_site_option( 'site_admins' );
-				break;
-			
-			default:
-				$value = get_site_option( $name );
+		// Data transformation if we need to
+		switch ( $name ) {
+			case 'allowedthemes':
+			case 'active_sitewide_plugins':
+				$value = array_keys( $value );
 				break;
 		}
 
