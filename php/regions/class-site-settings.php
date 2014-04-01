@@ -156,7 +156,9 @@ class Site_Settings extends Region {
 			switch ( $key ) {
 
 				case 'active_theme':
-					switch_theme( $value );
+					if ( $value !== get_option( 'stylesheet' ) ) {
+						switch_theme( $value );
+					}
 					break;
 
 				case 'active_plugins':
