@@ -10,7 +10,8 @@ Feature: Network Settings Region
         admin_email: dictator@example.com
         upload_filetypes: jpg jpeg png
         site_unlimited_upload: false
-        site_max_upload: 1000
+        site_upload_space: 1000
+        site_max_upload: 5000
         enabled_themes:
           - p2
         active_plugins:
@@ -54,7 +55,13 @@ Feature: Network Settings Region
     When I run `wp network-meta get 1 blog_upload_space`
     Then STDOUT should be:
       """
-      10000
+      1000
+      """
+
+    When I run `wp network-meta get 1 fileupload_maxk`
+    Then STDOUT should be:
+      """
+      5000
       """
 
     When I run `wp theme list --fields=name,enabled`

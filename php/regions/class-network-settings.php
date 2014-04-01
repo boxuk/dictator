@@ -118,6 +118,12 @@ class Network_Settings extends Region {
 						update_site_option( $key, 'no' );
 					}
 					break;
+
+				case 'upload_space_check_disabled':
+				case 'blog_upload_space':
+				case 'fileupload_maxk':
+					update_site_option( $key, intval( $value ) );
+					break;
 				
 				default:
 					update_site_option( $key, $value );
