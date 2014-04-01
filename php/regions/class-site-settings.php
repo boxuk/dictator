@@ -79,7 +79,7 @@ class Site_Settings extends Region {
 					break;
 				
 				default:
-					update_option( $name, $value );
+					update_option( $key, $value );
 					break;
 			}
 
