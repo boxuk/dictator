@@ -9,7 +9,14 @@ Feature: Network Sites Region
         enolagay:
           title: Enola Gay
           description: Just another B-29 Superfortress bomber
+          active_theme: p2
+          active_plugins:
+            - akismet/akismet.php
       """
+
+    When I run `wp plugin install akismet --force`
+    And I run `wp theme install p2 --force`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
@@ -28,3 +35,14 @@ Feature: Network Sites Region
       """
       Just another B-29 Superfortress bomber
       """
+
+    When I run `wp --url=example.com/enolagay option get stylesheet`
+    Then STDOUT should be:
+      """
+      p2
+      """
+
+    When I run `wp --url=example.com/enolagay plugin list --fields=name,status`
+    Then STDOUT should be a table containing rows:
+      | name     | status            |
+      | akismet  | active            |
