@@ -19,6 +19,9 @@ Feature: Site Settings Region
         active_theme: p2
         active_plugins:
           - akismet/akismet.php
+        show_on_front: page
+        page_on_front: 1
+        page_for_posts: 2
       """
 
     When I run `wp plugin install akismet --force`
@@ -71,3 +74,21 @@ Feature: Site Settings Region
     Then STDOUT should be a table containing rows:
       | name     | status            |
       | akismet  | active            |
+
+    When I run `wp option get show_on_front`
+    Then STDOUT should be:
+      """
+      page
+      """
+
+    When I run `wp option get page_on_front`
+    Then STDOUT should be:
+      """
+      1
+      """
+
+    When I run `wp option get page_for_posts`
+    Then STDOUT should be:
+      """
+      2
+      """
