@@ -12,6 +12,10 @@ Feature: Site Settings Region
         time_format: g:i a
         public: false
         posts_per_feed: 20
+        allow_comments: true
+        allow_pingbacks: false
+        notify_comments: false
+        notify_moderation: true
         active_theme: p2
         active_plugins:
           - akismet/akismet.php
@@ -43,6 +47,18 @@ Feature: Site Settings Region
     Then STDOUT should be:
       """
       20
+      """
+
+    When I run `wp option get default_comment_status`
+    Then STDOUT should be:
+      """
+      open
+      """
+
+    When I run `wp option get default_ping_status`
+    Then STDOUT should be:
+      """
+      closed
       """
 
     When I run `wp option get stylesheet`

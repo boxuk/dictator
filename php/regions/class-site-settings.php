@@ -64,6 +64,29 @@ class Site_Settings extends Region {
 				'_get_callback'     => 'get',
 				),
 			/**
+			 * Discussion
+			 */
+			'allow_comments'    => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'allow_pingbacks'    => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'notify_comments'    => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'notify_moderation'  => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			/**
 			 * Permalinks
 			 */
 			'permalink_structure' => array(
@@ -107,6 +130,10 @@ class Site_Settings extends Region {
 		'public'             => 'blog_public',
 		'posts_per_feed'     => 'posts_per_rss',
 		'feed_uses_excerpt'  => 'rss_use_excerpt',
+		'allow_comments'     => 'default_comment_status',
+		'allow_pingbacks'    => 'default_ping_status',
+		'notify_comments'    => 'comments_notify',
+		'notify_moderation'  => 'moderation_notify',
 		);
 
 	/**
@@ -143,9 +170,22 @@ class Site_Settings extends Region {
 					}
 					break;
 
+				// Boolean stored as 0 or 1
 				case 'blog_public':
 				case 'rss_use_excerpt':
+				case 'comments_notify':
+				case 'moderation_notify':
 					update_option( $key, intval( $value ) );
+					break;
+
+				// Boolean stored as 'open' or 'closed'
+				case 'default_comment_status':
+				case 'default_ping_status':
+					if ( $value ) {
+						update_option( $key, 'open' );
+					} else {
+						update_option( $key, 'closed' );
+					}
 					break;
 				
 				default:
@@ -197,6 +237,15 @@ class Site_Settings extends Region {
 			default:
 				$value = get_option( $name );
 				break;
+		}
+
+		// Data transformation if we need to
+		switch ( $name ) {
+			case 'default_comment_status':
+			case 'default_ping_status':
+				$value = ( 'open' === $value ) ? true : false;
+				break;
+
 		}
 
 		return $value;
