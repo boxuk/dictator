@@ -164,9 +164,18 @@ abstract class Region {
 
 			case 'text':
 			case 'email':
+			case 'bool':
+			case 'numeric':
 
 				if ( isset( $schema['_get_callback'] ) ) {
-					return call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
+					$value = call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
+					if ( $schema['_type'] === 'bool' ) {
+						$value = (bool) $value;
+					} else if ( $schema['_type'] === 'numeric' ) {
+						$value = intval( $value );
+					}
+
+					return $value;
 				}
 
 				break;

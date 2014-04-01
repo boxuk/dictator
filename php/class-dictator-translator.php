@@ -57,8 +57,10 @@ class Translator {
 	 */
 	protected function recursively_validate_state_data( $schema, $state_data ) {
 
-		if ( ! empty( $schema['_required'] ) && empty( $state_data ) ) {
+		if ( ! empty( $schema['_required'] ) && is_null( $state_data ) ) {
 			$this->state_data_errors[] = sprintf( "'%s' is required for the region.", $this->current_schema_attribute );
+			return;
+		} else if ( is_null( $state_data ) ) {
 			return;
 		}
 
@@ -116,6 +118,22 @@ class Translator {
 
 				}
 					
+				break;
+
+			case 'bool':
+
+				if ( ! is_bool( $state_data ) ) {
+					$this->state_data_errors[] = sprintf( "'%s' needs to be true or false.", $this->current_schema_attribute );
+				}
+
+				break;
+
+			case 'numeric':
+
+				if ( ! is_numeric( $state_data ) ) {
+					$this->state_data_errors[] = sprintf( "'%s' needs to be numeric.", $this->current_schema_attribute );
+				}
+
 				break;
 
 			case 'text':

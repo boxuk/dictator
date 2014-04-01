@@ -6,5 +6,5 @@ Feature: Components of the WP-CLI commands
     When I run `wp dictator list-states`
     Then STDOUT should be a table containing rows:
       | state     | regions              |
-      | network   | users,sites          |
+      | network   | settings,users,sites |
       | site      | settings,users,terms |
