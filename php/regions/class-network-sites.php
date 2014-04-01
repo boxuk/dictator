@@ -292,11 +292,11 @@ class Network_Sites extends Region {
 	 */
 	protected function create_site( $key, $value ) {
 
-		global $wpdb;
+		global $wpdb, $current_site;
 
 		$base = $key;
 		$title = ucfirst( $base );
-		$network = wpmu_current_site();
+		$network = $current_site;
 		if ( ! $network ) {
 			$networks = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->site WHERE id = %d", 1 ) );
 			if ( ! empty( $networks ) ) {
