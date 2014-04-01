@@ -7,12 +7,25 @@ class Site_Settings extends Region {
 	protected $schema = array(
 		'_type'      => 'array',
 		'_children'  => array(
+			/**
+			 * General
+			 */
 			'title'         => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
 			'description'   => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'admin_email' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'timezone' => array(
 				'_type'             => 'text',
 				'_required'         => false,
 				'_get_callback'     => 'get',
@@ -27,6 +40,50 @@ class Site_Settings extends Region {
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
+			/**
+			 * Reading
+			 */
+			'public'        => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'posts_per_page' => array(
+				'_type'             => 'numeric',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'posts_per_feed' => array(
+				'_type'             => 'numeric',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'feed_uses_excerpt' => array(
+				'_type'             => 'bool',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			/**
+			 * Permalinks
+			 */
+			'permalink_structure' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'category_base' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'tag_base' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			/**
+			 * Theme / plugins
+			 */
 			'active_theme'  => array(
 				'_type'             => 'text',
 				'_required'         => false,
@@ -44,8 +101,12 @@ class Site_Settings extends Region {
 	 * Correct core's confusing option names
 	 */
 	protected $options_map = array(
-		'title'            => 'blogname',
-		'description'      => 'blogdescription',
+		'title'              => 'blogname',
+		'description'        => 'blogdescription',
+		'timezone'           => 'timezone_string',
+		'public'             => 'blog_public',
+		'posts_per_feed'     => 'posts_per_rss',
+		'feed_uses_excerpt'  => 'rss_use_excerpt',
 		);
 
 	/**
@@ -80,6 +141,11 @@ class Site_Settings extends Region {
 						}
 
 					}
+					break;
+
+				case 'blog_public':
+				case 'rss_use_excerpt':
+					update_option( $key, intval( $value ) );
 					break;
 				
 				default:

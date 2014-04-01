@@ -10,8 +10,16 @@ Feature: Site Settings Region
         description: Just another awesome WordPress site
         date_format: F j, Y
         time_format: g:i a
-        active_theme: twentyfourteen
+        public: false
+        posts_per_feed: 20
+        active_theme: p2
+        active_plugins:
+          - akismet/akismet.php
       """
+
+    When I run `wp plugin install akismet --force`
+    And I run `wp theme install p2 --force`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose site-state.yml`
     Then STDOUT should not be empty
@@ -25,8 +33,25 @@ Feature: Site Settings Region
       Salty WordPress
       """
 
+    When I run `wp option get blog_public`
+    Then STDOUT should be:
+      """
+      0
+      """
+
+    When I run `wp option get posts_per_rss`
+    Then STDOUT should be:
+      """
+      20
+      """
+
     When I run `wp option get stylesheet`
     Then STDOUT should be:
       """
-      twentyfourteen
+      p2
       """
+
+    When I run `wp plugin list --fields=name,status`
+    Then STDOUT should be a table containing rows:
+      | name     | status            |
+      | akismet  | active            |
