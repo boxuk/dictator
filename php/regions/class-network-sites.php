@@ -29,6 +29,11 @@ class Network_Sites extends Region {
 						'_required'         => false,
 						'_get_callback'     => 'get_site_value',
 						),
+					'active_plugins' => array(
+						'_type'             => 'array',
+						'_required'         => false,
+						'_get_callback'     => 'get_site_value',
+						),
 					'users'             => array(
 						'_type'             => 'array',
 						'_required'         => false,
@@ -110,6 +115,18 @@ class Network_Sites extends Region {
 
 					break;
 
+				case 'active_plugins':
+
+					foreach( $single_value as $plugin ) {
+
+						if ( ! is_plugin_active( $plugin ) ) {
+							activate_plugin( $plugin );
+						}
+
+					}
+
+					break;
+
 				case 'users':
 
 					foreach( $single_value as $user_login => $role ) {
@@ -186,15 +203,17 @@ class Network_Sites extends Region {
 
 			case 'title':
 			case 'description':
+			case 'active_theme':
 				$map = array(
-					'title'         => 'blogname',
-					'description'   => 'blogdescription',
+					'title'           => 'blogname',
+					'description'     => 'blogdescription',
+					'active_theme'    => 'stylesheet',
 					);
 				$value = get_option( $map[ $key ] );
 				break;
 
-			case 'active_theme':
-				$value = get_option( 'stylesheet' );
+			case 'active_plugins':
+				$value = get_option( $key, array() );
 				break;
 
 			case 'users':
