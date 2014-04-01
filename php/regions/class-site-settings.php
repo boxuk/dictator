@@ -41,6 +41,14 @@ class Site_Settings extends Region {
 		);
 
 	/**
+	 * Correct core's confusing option names
+	 */
+	protected $options_map = array(
+		'title'            => 'blogname',
+		'description'      => 'blogdescription',
+		);
+
+	/**
 	 * Impose some data onto the region
 	 * How the data is interpreted depends
 	 * on the region
@@ -53,15 +61,11 @@ class Site_Settings extends Region {
 
 		foreach( $options as $key => $value ) {
 
+			if ( array_key_exists( $key, $this->options_map ) ) {
+				$key = $this->options_map[ $key ];
+			}
+
 			switch ( $key ) {
-
-				case 'title':
-					update_option( 'blogname', $value );
-					break;
-
-				case 'description':
-					update_option( 'blogdescription', $value );
-					break;
 
 				case 'active_theme':
 					switch_theme( $value );
@@ -115,15 +119,11 @@ class Site_Settings extends Region {
 	 */
 	public function get( $name ) {
 
+		if ( array_key_exists( $name, $this->options_map ) ) {
+			$name = $this->options_map[ $name ];
+		}
+
 		switch ( $name ) {
-			case 'title':
-				$value = get_option( 'blogname' );
-				break;
-
-			case 'description':
-				$value = get_option( 'blogdescription' );
-				break;
-
 			case 'active_theme':
 				$value = get_option( 'stylesheet' );
 				break;
