@@ -63,6 +63,21 @@ class Site_Settings extends Region {
 				'_required'         => false,
 				'_get_callback'     => 'get',
 				),
+			'show_on_front' => array(
+				'_type'             => 'text',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'page_on_front' => array(
+				'_type'             => 'numeric',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
+			'page_for_posts' => array(
+				'_type'             => 'numeric',
+				'_required'         => false,
+				'_get_callback'     => 'get',
+				),
 			/**
 			 * Discussion
 			 */
