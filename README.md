@@ -22,7 +22,7 @@ Apply the state file locally with `wp dictator impose site-state.yml` and you've
 
 Dictator is a series of [WP-CLI](http://wp-cli.org) commands.
 
-Once WP-CLI is installed, Dictator can be installed via [Composer](https://getcomposer.org/), or WP-CLI's `--require` attribute.
+Once WP-CLI is installed, Dictator can be [installed](https://github.com/wp-cli/wp-cli/wiki/Community-Packages) via [Composer](https://getcomposer.org/), or WP-CLI's [`--require`](http://wp-cli.org/config/) attribute.
 
 ## Using
 
