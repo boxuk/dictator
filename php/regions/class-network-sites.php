@@ -135,7 +135,7 @@ class Network_Sites extends Region {
 							continue;
 						}
 
-						add_user_to_blog( (int) $this->blog_ids[ $key ], $user->ID, $role );
+						add_user_to_blog( $site['blog_id'], $user->ID, $role );
 					}
 
 					break;
@@ -156,7 +156,7 @@ class Network_Sites extends Region {
 	 */
 	protected function get_sites() {
 
-		if ( is_array( $this->sites ) ) {
+		if ( isset( $this->sites ) && is_array( $this->sites ) ) {
 			return array_keys( $this->sites );
 		}
 
@@ -297,6 +297,7 @@ class Network_Sites extends Region {
 		$base = $key;
 		$title = ucfirst( $base );
 		$network = $current_site;
+		$meta = $value;
 		if ( ! $network ) {
 			$networks = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->site WHERE id = %d", 1 ) );
 			if ( ! empty( $networks ) ) {
@@ -338,7 +339,7 @@ class Network_Sites extends Region {
 		}
 
 		$wpdb->hide_errors();
-		$id = wpmu_create_blog( $newdomain, $path, $title, $user_id, array( 'public' => $public ), $network->id );
+		$id = wpmu_create_blog( $newdomain, $path, $title, $user_id, $meta, $network->id );
 		$wpdb->show_errors();
 
 		if ( is_wp_error( $id ) ) {
