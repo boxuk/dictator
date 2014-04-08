@@ -297,6 +297,7 @@ class Network_Sites extends Region {
 		$base = $key;
 		$title = ucfirst( $base );
 		$network = $current_site;
+		$meta = $value;
 		if ( ! $network ) {
 			$networks = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->site WHERE id = %d", 1 ) );
 			if ( ! empty( $networks ) ) {
@@ -338,7 +339,7 @@ class Network_Sites extends Region {
 		}
 
 		$wpdb->hide_errors();
-		$id = wpmu_create_blog( $newdomain, $path, $title, $user_id, array( 'public' => $public ), $network->id );
+		$id = wpmu_create_blog( $newdomain, $path, $title, $user_id, $meta, $network->id );
 		$wpdb->show_errors();
 
 		if ( is_wp_error( $id ) ) {
