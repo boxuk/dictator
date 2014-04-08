@@ -135,7 +135,7 @@ class Network_Sites extends Region {
 							continue;
 						}
 
-						add_user_to_blog( (int) $this->blog_ids[ $key ], $user->ID, $role );
+						add_user_to_blog( $site['blog_id'], $user->ID, $role );
 					}
 
 					break;
