@@ -156,7 +156,7 @@ class Network_Sites extends Region {
 	 */
 	protected function get_sites() {
 
-		if ( is_array( $this->sites ) ) {
+		if ( isset( $this->sites ) && is_array( $this->sites ) ) {
 			return array_keys( $this->sites );
 		}
 
