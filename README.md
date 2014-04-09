@@ -1,6 +1,6 @@
 # Dictator
 
-[![Build Status](https://travis-ci.org/danielbachhuber/dictator.png)](https://travis-ci.org/danielbachhuber/dictator)
+[![Build Status](https://travis-ci.org/danielbachhuber/dictator.png?branch=master)](https://travis-ci.org/danielbachhuber/dictator)
 
 Dictator controls the State of WordPress. Strongly influenced by [Salt](http://www.saltstack.com/), Dictator permits configuration attributes stored in YAML state files to be *imposed* upon WordPress.
 
