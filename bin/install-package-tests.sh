@@ -21,7 +21,7 @@ set_package_context() {
 	requires=$(php $PACKAGE_DIR/utils/get-package-require-from-composer.php composer.json)
 	for require in "${requires[@]}"
 	do
-		printf "$config_file\n%2s-%1s$PACKAGE_DIR/$require" >> $WP_CLI_CONFIG_PATH
+		printf "\n%2s-%1s$PACKAGE_DIR/$require" >> $WP_CLI_CONFIG_PATH
 	done
 
 }
