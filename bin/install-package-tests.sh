@@ -15,8 +15,8 @@ install_wp_cli() {
 download_behat() {
 
 	cd ../
-	# Avoids OpenSSL alerts on Travis
-	wget --no-check-certificate https://github.com/downloads/Behat/Behat/behat.phar
+	# Avoids OpenSSL alerts on Travis by using http
+	wget http://github.com/downloads/Behat/Behat/behat.phar
 	chmod +x behat.phar
 
 }
