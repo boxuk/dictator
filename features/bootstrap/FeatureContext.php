@@ -8,11 +8,11 @@ use Behat\Behat\Context\ClosuredContextInterface,
 use \WP_CLI\Process;
 use \WP_CLI\Utils;
 
-// Community package build
-if ( file_exists( __DIR__ . '/utils.php' ) && file_exists( __DIR__ . '/Process.php' ) ) {
+// Inside a community package
+if ( file_exists( __DIR__ . '/utils.php' ) ) {
 	require_once __DIR__ . '/utils.php';
 	require_once __DIR__ . '/Process.php';
-// WP-CLI
+// Inside WP-CLI
 } else {
 	require_once __DIR__ . '/../../php/utils.php';
 	require_once __DIR__ . '/../../php/WP_CLI/Process.php';
