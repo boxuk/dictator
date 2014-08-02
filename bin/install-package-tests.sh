@@ -15,7 +15,7 @@ install_wp_cli() {
 download_behat() {
 
 	cd ../
-	wget https://github.com/downloads/Behat/Behat/behat.phar
+	wget https://cloud.github.com/downloads/Behat/Behat/behat.phar
 	chmod +x behat.phar
 
 }
