@@ -16,7 +16,7 @@ download_behat() {
 
 	cd ../
 	# Avoids OpenSSL alerts on Travis by using http
-	wget http://github.com/downloads/Behat/Behat/behat.phar
+	wget http://cloud.github.com/downloads/Behat/Behat/behat.phar
 	chmod +x behat.phar
 
 }
