@@ -4,7 +4,11 @@ php:
     - 5.3
     - 5.4
 
+env:
+    global:
+         - WP_CLI_BIN_DIR=/tmp/wp-cli-phar
+
 before_script:
     - bash bin/install-package-tests.sh
 
-script: bash bin/test.sh
+script: php behat.phar
