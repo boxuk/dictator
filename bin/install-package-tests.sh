@@ -3,7 +3,6 @@
 set -ex
 
 PACKAGE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../ && pwd )"
-PACKAGE_TEST_CONFIG_PATH=$WP_CLI_BIN_DIR/config.yml
 
 install_wp_cli() {
 
@@ -17,12 +16,12 @@ install_wp_cli() {
 
 set_package_context() {
 
-	touch $PACKAGE_TEST_CONFIG_PATH
-	printf 'require:' > $PACKAGE_TEST_CONFIG_PATH
+	touch $WP_CLI_CONFIG_PATH
+	printf 'require:' > $WP_CLI_CONFIG_PATH
 	requires=$(php $PACKAGE_DIR/utils/get-package-require-from-composer.php composer.json)
 	for require in "${requires[@]}"
 	do
-		printf "$config_file\n%2s-%1s$PACKAGE_DIR/$require" >> $PACKAGE_TEST_CONFIG_PATH
+		printf "$config_file\n%2s-%1s$PACKAGE_DIR/$require" >> $WP_CLI_CONFIG_PATH
 	done
 
 }
