@@ -23,6 +23,7 @@ set_package_context() {
 	do
 		printf "\n%2s-%1s$PACKAGE_DIR/$require" >> $WP_CLI_CONFIG_PATH
 	done
+	printf "\n" >> $WP_CLI_CONFIG_PATH
 
 }
 
