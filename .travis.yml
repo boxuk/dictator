@@ -11,4 +11,4 @@ env:
 before_script:
     - bash bin/install-package-tests.sh
 
-script: php behat.phar
+script: ./vendor/bin/behat

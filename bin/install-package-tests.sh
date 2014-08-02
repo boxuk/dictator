@@ -2,6 +2,9 @@
 
 set -ex
 
+PACKAGE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../ && pwd )"
+PACKAGE_TEST_CONFIG_PATH=$WP_CLI_BIN_DIR/config.yml
+
 install_wp_cli() {
 
 	# the Behat test suite will pick up the executable found in $WP_CLI_BIN_DIR
@@ -12,12 +15,23 @@ install_wp_cli() {
 
 }
 
+set_package_context() {
+
+	touch $PACKAGE_TEST_CONFIG_PATH
+	printf 'require:' > $PACKAGE_TEST_CONFIG_PATH
+	requires=$(php $PACKAGE_DIR/utils/get-package-require-from-composer.php composer.json)
+	for require in "${requires[@]}"
+	do
+		printf "$config_file\n%2s-%1s$PACKAGE_DIR/$require" >> $PACKAGE_TEST_CONFIG_PATH
+	done
+
+}
+
 download_behat() {
 
-	cd ../
-	# Latest build URL causes OpenSSL issues on Travis :/
-	wget https://github.com/Behat/Behat/releases/download/v3.0.12/behat.phar
-	chmod +x behat.phar
+	cd $PACKAGE_DIR
+	curl -s https://getcomposer.org/installer | php
+	php composer.phar require --dev behat/behat='~2.5'
 
 }
 
@@ -27,5 +41,6 @@ install_db() {
 }
 
 install_wp_cli
+set_package_context
 download_behat
 install_db
