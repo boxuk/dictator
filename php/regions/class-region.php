@@ -131,9 +131,11 @@ abstract class Region {
 					}
 					foreach( $prototype_vals as $prototype_val ) {
 						$this->current_schema_attribute = $prototype_val;
+
 						$this->current_schema_attribute_parents[] = $prototype_val;
 						$data[ $prototype_val ] = $this->recursively_get_current_data( $schema['_prototype'] );
 						array_pop( $this->current_schema_attribute_parents );
+
 					}
 					return $data;
 				}
