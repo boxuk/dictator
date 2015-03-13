@@ -165,6 +165,9 @@ class Network_Sites extends Region {
 			'offset'    => 0,
 			);
 		$sites = array();
+		if ( ! is_multisite() ) {
+			return $this->sites;
+		}	
 		do {
 
 			$sites_results = wp_get_sites( $args );
