@@ -166,22 +166,22 @@ class Network_Settings extends Region {
 			$name = $this->options_map[ $name ];
 		}
 
-		$value = get_site_option( $name );
-
 		// Data transformation if we need to
 		switch ( $name ) {
 			case 'allowedthemes':
 			case 'active_sitewide_plugins':
-				$value = array_keys( $value );
+				# Coerce to array of names
+				return array_keys( get_site_option($name, array() ) );
 				break;
 
 			case 'registrationnotification':
-				$value = ( 'yes' === $value ) ? true : false;
+				# Coerce to boolean
+				return ( 'yes' === get_site_option( $name ) );
 				break;
+			default:
+				return get_site_option( $name );
 
 		}
-
-		return $value;
 
 	}
 
