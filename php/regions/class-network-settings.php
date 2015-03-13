@@ -158,7 +158,6 @@ class Network_Settings extends Region {
 	 * Get the value for the setting
 	 * 
 	 * @param string $name
-	 * @param mixed $default
 	 * @return mixed
 	 */
 	public function get( $name ) {
