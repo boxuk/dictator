@@ -126,16 +126,15 @@ abstract class Region {
 					$prototype_vals = call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 
 					$data = array();
-					if ( ! is_array($prototype_vals) ) {
-						$prototype_vals = array();
-					}
-					foreach( $prototype_vals as $prototype_val ) {
-						$this->current_schema_attribute = $prototype_val;
+					if ( ! empty($prototype_vals) ) {
+						foreach( $prototype_vals as $prototype_val ) {
+							$this->current_schema_attribute = $prototype_val;
 
-						$this->current_schema_attribute_parents[] = $prototype_val;
-						$data[ $prototype_val ] = $this->recursively_get_current_data( $schema['_prototype'] );
-						array_pop( $this->current_schema_attribute_parents );
+							$this->current_schema_attribute_parents[] = $prototype_val;
+							$data[ $prototype_val ] = $this->recursively_get_current_data( $schema['_prototype'] );
+							array_pop( $this->current_schema_attribute_parents );
 
+						}
 					}
 					return $data;
 				}
