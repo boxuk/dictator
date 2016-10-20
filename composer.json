@@ -1,6 +1,7 @@
 {
     "name": "danielbachhuber/dictator",
     "description": "The Dictator controls the state of WordPress",
+    "type": "wp-cli-package",
     "homepage": "https://github.com/danielbachhuber/dictator",
     "license": "MIT",
     "authors": [
