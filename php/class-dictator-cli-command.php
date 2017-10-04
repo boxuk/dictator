@@ -215,7 +215,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( sprintf( "File doesn't exist: %s", $file ) );
 		}
 
-		$yaml = spyc_load( file_get_contents( $file ) );
+		$yaml = Mustangostang\Spyc::YAMLLoadString( file_get_contents( $file ) );
 		if ( empty( $yaml ) ) {
 			WP_CLI::error( sprintf( "Doesn't appear to be a Yaml file: %s", $file ) );
 		}

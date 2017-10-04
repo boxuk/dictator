@@ -133,7 +133,7 @@ class Dictator {
 			$schema_file = dirname( dirname( __FILE__ ) ) . '/schemas/' . $schema_file;
 		}
 
-		$schema_yaml = spyc_load( file_get_contents( $schema_file ) );
+		$schema_yaml = Mustangostang\Spyc::YAMLLoadString( file_get_contents( $schema_file ) );
 
 		return new MetaYaml( $schema_yaml );
 
