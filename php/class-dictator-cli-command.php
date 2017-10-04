@@ -215,7 +215,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 			WP_CLI::error( sprintf( "File doesn't exist: %s", $file ) );
 		}
 
-		$yaml = spyc_load( file_get_contents( $file ) );
+		$yaml = Mustangostang\Spyc::YAMLLoadString( file_get_contents( $file ) );
 		if ( empty( $yaml ) ) {
 			WP_CLI::error( sprintf( "Doesn't appear to be a Yaml file: %s", $file ) );
 		}
@@ -269,7 +269,7 @@ class Dictator_CLI_Command extends WP_CLI_Command {
 	 */
 	private function write_state_file( $state_data, $file ) {
 
-		$spyc = new Spyc;
+		$spyc = new Mustangostang\Spyc;
 		$file_data = $spyc->dump( $state_data, 2, 0 );
 		// $spyc->dump() prepends "---\n" :(
 		$file_data = substr( $file_data, 4 );
