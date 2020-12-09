@@ -22,10 +22,15 @@ Feature: Site Settings Region
         show_on_front: page
         page_on_front: 1
         page_for_posts: 2
+        timezone: Europe/London
+        WPLANG: en_GB
       """
 
     When I run `wp plugin install akismet --force`
     And I run `wp theme install p2 --force`
+    Then STDOUT should not be empty
+
+    When I run `wp language core install en_GB`
     Then STDOUT should not be empty
 
     When I run `wp dictator impose site-state.yml`
@@ -91,4 +96,16 @@ Feature: Site Settings Region
     Then STDOUT should be:
       """
       2
+      """
+
+    When I run `wp option get timezone_string`
+    Then STDOUT should be:
+      """
+      Europe/London
+      """
+
+    When I run `wp option get WPLANG`
+    Then STDOUT should be:
+      """
+      en_GB
       """

@@ -2,15 +2,17 @@ language: php
 dist: precise
 
 php:
-    - 5.3
-    - 5.5
+    - 5.6
 
 env:
     global:
-         - WP_CLI_BIN_DIR=/tmp/wp-cli-phar
-         - WP_CLI_CONFIG_PATH=/tmp/wp-cli-phar/config.yml
+         - WP_CLI_BIN_DIR=/home/travis/.composer/vendor/bin
+         - WP_CLI_CONFIG_PATH=/tmp/config.yml
 
 before_script:
+    - composer global require mustangostang/spyc
+    - composer global require wp-cli/wp-cli-bundle
+    - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - bash bin/install-package-tests.sh
 
 script: ./vendor/bin/behat

@@ -90,7 +90,10 @@ class Translator {
 								continue;
 							}
 
-							$this->recursively_validate_state_data( $child_schema, $child_data[ $schema_key ] );
+							$this->recursively_validate_state_data(
+								$child_schema,
+								isset( $child_data[ $schema_key ] ) ? $child_data[ $schema_key ] : null
+							);
 						}
 
 					}
@@ -112,7 +115,10 @@ class Translator {
 
 						$this->current_schema_attribute = $attribute;
 
-						$this->recursively_validate_state_data( $attribute_schema, $state_data[ $attribute ] );
+						$this->recursively_validate_state_data(
+							$attribute_schema,
+							isset( $state_data[ $attribute ] ) ? $state_data[ $attribute ] : null
+						);
 
 					}
 
