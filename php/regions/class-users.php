@@ -30,6 +30,11 @@ abstract class Users extends Region {
 					'_required'         => false,
 					'_get_callback'     => 'get_user_value',
 					),
+				'user_pass'      => array(
+					'_type'             => 'text',
+					'_required'         => false,
+					'_get_callback'     => 'get_user_value',
+					),
 				'role'           => array(
 					'_type'             => 'text',
 					'_required'         => false,
@@ -46,7 +51,7 @@ abstract class Users extends Region {
 
 	/**
 	 * Get the difference between the state file and WordPress
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_differences() {
@@ -88,7 +93,7 @@ abstract class Users extends Region {
 
 	/**
 	 * Get the value from a user object
-	 * 
+	 *
 	 * @param string $key
 	 * @return mixed
 	 */
@@ -114,7 +119,7 @@ abstract class Users extends Region {
 					$value = '';
 				}
 				break;
-			
+
 			default:
 				$value = $user->$key;
 				break;
@@ -125,7 +130,7 @@ abstract class Users extends Region {
 
 	/**
 	 * Impose some state data onto a region
-	 * 
+	 *
 	 * @param string $key User login
 	 * @param array $value User's data
 	 * @return true|WP_Error
@@ -138,6 +143,7 @@ abstract class Users extends Region {
 			$user_obj = array(
 				'user_login'     => $key,
 				'user_email'     => $value['email'], // 'email' is required
+				'user_pass'      => isset( $value['user_pass'] ) ? $value['user_pass'] : wp_generate_password( 24 ), // if no password supplied, generate random password
 				);
 			$user_id = wp_insert_user( $user_obj );
 			if ( is_wp_error( $user_id ) ) {
@@ -166,7 +172,7 @@ abstract class Users extends Region {
 				case 'email':
 					$model_field = 'user_email';
 					break;
-				
+
 				default:
 					$model_field = $yml_field;
 					break;
@@ -183,10 +189,10 @@ abstract class Users extends Region {
 
 	/**
 	 * Get the difference between the declared user and the actual user
-	 * 
+	 *
 	 * @param string $user_login
 	 * @param array $user_data
-	 * @return array|false 
+	 * @return array|false
 	 */
 	protected function get_user_difference( $user_login, $user_data ) {
 

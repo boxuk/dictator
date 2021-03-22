@@ -8,8 +8,8 @@ Submitting patches
 
 Whether you want to fix a bug or implement a new feature, the process is pretty much the same:
 
-0. [Search existing issues](https://github.com/danielbachhuber/dictator/issues); if you can't find anything related to what you want to work on, open a new issue so that you can get some initial feedback.
-1. [Fork](https://github.com/wp-cli/wp-cli/fork) the repository.
+0. [Search existing issues](https://github.com/boxuk/dictator/issues); if you can't find anything related to what you want to work on, open a new issue so that you can get some initial feedback.
+1. [Fork](https://github.com/boxuk/dictator/fork) the repository.
 2. Push the code changes from your local clone to your fork.
 3. Open a pull request.
 
@@ -24,9 +24,19 @@ Running and writing tests
 
 Dictator uses functional tests, implemented using [Behat](http://behat.org) and leveraging WP-CLI's testing framework. They are located in the `features/` directory.
 
-Before running the functional tests, you'll need to provision the testing environment. You can do so by running `bash bin/install-package-tests.sh`. Behind the scenes, the script will install WP-CLI, Behat, create a MySQL database, etc.
+Before running the functional tests, you'll need to provision the testing environment. 
 
-To run the functional tests, you can use `bash bin/test.sh`. It routes the request to WP-CLI's Behat testing framework.
+First make sure you have run composer with dev dependencies:
+
+`composer install`
+
+Then you'll need to export the following vars (update the values accordingly):
+
+`export WP_CLI_TEST_DBROOTUSER=root`
+`export WP_CLI_TEST_DBROOTPASS=root`
+`export WP_CLI_TEST_DBUSER=wp_cli_test`
+`export WP_CLI_TEST_DBPASS=password1`
+`export WP_CLI_TEST_DBHOST=localhost`
 
 Finally...
 ----------

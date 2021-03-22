@@ -1,18 +1,50 @@
 language: php
-dist: precise
 
-php:
-    - 5.6
+branches:
+    only:
+        - master
+
+services:
+    - mysql
+
+cache:
+    directories:
+        - "/home/travis/.composer/cache"
 
 env:
     global:
-         - WP_CLI_BIN_DIR=/home/travis/.composer/vendor/bin
-         - WP_CLI_CONFIG_PATH=/tmp/config.yml
+        - PATH="$TRAVIS_BUILD_DIR/vendor/bin:$PATH"
+        - WP_CLI_BIN_DIR="$TRAVIS_BUILD_DIR/vendor/bin"
+        - WP_CLI_TEST_DBROOTUSER=root
+        - WP_CLI_TEST_DBROOTPASS=''
+        - WP_CLI_TEST_DBUSER=wp_cli_test
+        - WP_CLI_TEST_DBPASS=password1
+        - WP_CLI_TEST_DBHOST=127.0.0.1
 
-before_script:
-    - composer global require mustangostang/spyc
-    - composer global require wp-cli/wp-cli-bundle
-    - export PATH="$HOME/.composer/vendor/bin:$PATH"
-    - bash bin/install-package-tests.sh
+install:
+    - composer install
+    - composer prepare-tests
 
-script: ./vendor/bin/behat
+script:
+    - composer behat || composer behat-rerun
+
+jobs:
+    include:
+        -   stage: lint
+            script:
+                - composer lint
+            env: BUILD=lint
+        -   stage: sniff
+            script:
+                - composer phpcs
+            env: BUILD=sniff
+        -   stage: test
+            php: 5.6
+            env:
+                - WP_VERSION=latest
+        -   stage: test
+            php: 7.4
+            env: WP_VERSION=latest
+    # Allow PHPCS failures until we've updated everything to adhere to WP standards.
+    allow_failures:
+        -   env: BUILD=sniff
