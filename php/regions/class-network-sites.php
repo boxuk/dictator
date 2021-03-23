@@ -107,7 +107,7 @@ class Network_Sites extends Region {
 			}
 		}
 
-		switch_to_blog( $site['blog_id'] );
+		switch_to_blog( $site->blog_id );
 		foreach ( $value as $field => $single_value ) {
 
 			switch ( $field ) {
@@ -145,13 +145,13 @@ class Network_Sites extends Region {
 							continue;
 						}
 
-						add_user_to_blog( $site['blog_id'], $user->ID, $role );
+						add_user_to_blog( $site->blog_id, $user->ID, $role );
 					}
 
 					break;
 
 				case 'WPLANG':
-					add_network_option( $site['blog_id'], $field, $single_value );
+					add_network_option( $site->blog_id, $field, $single_value );
 					break;
 
 				default:
@@ -188,7 +188,7 @@ class Network_Sites extends Region {
 		}
 		do {
 
-			$sites_results = wp_get_sites( $args );
+			$sites_results = get_sites( $args );
 			$sites         = array_merge( $sites, $sites_results );
 
 			$args['offset'] += $args['limit'];
@@ -198,9 +198,9 @@ class Network_Sites extends Region {
 		$this->sites = array();
 		foreach ( $sites as $site ) {
 			if ( is_subdomain_install() ) {
-				$site_slug = str_replace( '.' . get_current_site()->domain, '', $site['domain'] );
+				$site_slug = str_replace( '.' . get_current_site()->domain, '', $site->domain );
 			} else {
-				$site_slug = trim( $site['path'], '/' );
+				$site_slug = trim( $site->path, '/' );
 			}
 			$this->sites[ $site_slug ] = $site;
 		}
@@ -218,7 +218,7 @@ class Network_Sites extends Region {
 		$site_slug = $this->current_schema_attribute_parents[0];
 		$site      = $this->get_site( $site_slug );
 
-		switch_to_blog( $site['blog_id'] );
+		switch_to_blog( $site->blog_id );
 
 		switch ( $key ) {
 
@@ -247,7 +247,7 @@ class Network_Sites extends Region {
 				break;
 
 			case 'WPLANG':
-				$value = get_network_option( $site['blog_id'], $key );
+				$value = get_network_option( $site->blog_id, $key );
 				break;
 
 			default:
@@ -296,7 +296,7 @@ class Network_Sites extends Region {
 	 * Get a site by its slug
 	 *
 	 * @param string $site_slug Site slug.
-	 * @return array|false
+	 * @return WP_Site|false
 	 */
 	protected function get_site( $site_slug ) {
 
