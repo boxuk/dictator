@@ -1,6 +1,6 @@
 # Dictator
 
-[![Build Status](https://travis-ci.org/danielbachhuber/dictator.png?branch=master)](https://travis-ci.org/danielbachhuber/dictator)
+[![Build Status](https://travis-ci.com/boxuk/dictator.png?branch=master)](https://travis-ci.com/boxuk/dictator)
 
 ## Attribution
 
