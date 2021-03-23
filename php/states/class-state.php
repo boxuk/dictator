@@ -2,6 +2,8 @@
 
 namespace Dictator\States;
 
+use Dictator\Regions\Region;
+
 /**
  * A state controls certain regions of WordPress
  */
@@ -9,14 +11,23 @@ abstract class State {
 
 	/**
 	 * Data included in the Yaml file
+	 *
+	 * @var array $yaml
 	 */
 	protected $yaml;
 
 	/**
 	 * Components of WordPress controlled by this state
+	 *
+	 * @var array $regions
 	 */
 	protected $regions = array();
 
+	/**
+	 * State constructor.
+	 *
+	 * @param array|null $yaml Yaml data.
+	 */
 	public function __construct( $yaml = null ) {
 
 		$this->yaml = $yaml;
@@ -25,13 +36,13 @@ abstract class State {
 
 	/**
 	 * Get the regions associated with this state
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_regions() {
 
 		$regions = array();
-		foreach( $this->regions as $name => $class ) {
+		foreach ( $this->regions as $name => $class ) {
 
 			$data = ( ! empty( $this->yaml[ $name ] ) ) ? $this->yaml[ $name ] : array();
 
@@ -44,18 +55,17 @@ abstract class State {
 
 	/**
 	 * Get the name of the region
-	 * 
-	 * @param object
+	 *
+	 * @param Region $region_obj Region to get name from.
 	 * @return string
 	 */
-	public function get_region_name( \Dictator\Regions\Region $region_obj ) {
+	public function get_region_name( Region $region_obj ) {
 
-		foreach( $this->regions as $name => $class ) {
+		foreach ( $this->regions as $name => $class ) {
 
 			if ( is_a( $region_obj, $class ) ) {
 				return $name;
 			}
-
 		}
 
 		return '';
@@ -67,14 +77,12 @@ abstract class State {
 	 */
 	public function get_yaml() {
 
-		// Yaml was passed when the state was instantiated
+		// Yaml was passed when the state was instantiated.
 		if ( ! is_null( $this->yaml ) ) {
 			return $this->yaml;
 		}
 
-
-
 	}
 
-	
+
 }
