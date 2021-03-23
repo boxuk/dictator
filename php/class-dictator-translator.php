@@ -2,18 +2,39 @@
 
 namespace Dictator;
 
+use Dictator\Regions\Region;
+
 /**
  * Translation layer between YAML data and WordPress
  */
+class Dictator_Translator {
 
-class Translator {
-
+	/**
+	 * Region.
+	 *
+	 * @var Region $region
+	 */
 	protected $region;
 
+	/**
+	 * State data errors.
+	 *
+	 * @var array $state_data_errors
+	 */
 	protected $state_data_errors = array();
 
+	/**
+	 * Current schema attribute.
+	 *
+	 * @var $current_schema_attribute
+	 */
 	protected $current_schema_attribute;
 
+	/**
+	 * Dictator_Translator constructor.
+	 *
+	 * @param Region $region Region object.
+	 */
 	public function __construct( $region ) {
 
 		$this->region = $region;
@@ -22,7 +43,7 @@ class Translator {
 
 	/**
 	 * Whether or not the state data provided is valid
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function is_valid_state_data() {
@@ -42,7 +63,7 @@ class Translator {
 
 	/**
 	 * Get the errors generated when validating the state data
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_state_data_errors() {
@@ -51,37 +72,35 @@ class Translator {
 
 	/**
 	 * Dive into the schema to see if the provided state data validates
-	 * 
-	 * @param mixed $schema
-	 * @param mixed $state_data
+	 *
+	 * @param mixed $schema Schema to validate against.
+	 * @param mixed $state_data Data to validate.
 	 */
 	protected function recursively_validate_state_data( $schema, $state_data ) {
 
 		if ( ! empty( $schema['_required'] ) && is_null( $state_data ) ) {
 			$this->state_data_errors[] = sprintf( "'%s' is required for the region.", $this->current_schema_attribute );
 			return;
-		} else if ( is_null( $state_data ) ) {
+		} elseif ( is_null( $state_data ) ) {
 			return;
 		}
 
 		switch ( $schema['_type'] ) {
 
 			case 'prototype':
-
 				if ( 'prototype' === $schema['_prototype']['_type'] ) {
 
-					foreach( $state_data as $key => $attribute_data ) {
+					foreach ( $state_data as $key => $attribute_data ) {
 
 						$this->current_schema_attribute = $key;
 
 						$this->recursively_validate_state_data( $schema['_prototype']['_prototype'], $attribute_data );
 					}
+				} elseif ( 'array' === $schema['_prototype']['_type'] ) {
 
-				} else if ( 'array' === $schema['_prototype']['_type'] ) {
+					foreach ( $state_data as $key => $child_data ) {
 
-					foreach( $state_data as $key => $child_data ) {
-
-						foreach( $schema['_prototype']['_children'] as $schema_key => $child_schema ) {
+						foreach ( $schema['_prototype']['_children'] as $schema_key => $child_schema ) {
 
 							$this->current_schema_attribute = $schema_key;
 
@@ -95,23 +114,20 @@ class Translator {
 								isset( $child_data[ $schema_key ] ) ? $child_data[ $schema_key ] : null
 							);
 						}
-
 					}
-
 				}
 
 				break;
 
 			case 'array':
-
 				if ( $state_data && ! is_array( $state_data ) ) {
 					$this->state_data_errors[] = sprintf( "'%s' needs to be an array.", $this->current_schema_attribute );
 				}
 
-				// Arrays can have schemas defined for each child attribute
+				// Arrays can have schemas defined for each child attribute.
 				if ( ! empty( $schema['_children'] ) ) {
 
-					foreach( $schema['_children'] as $attribute => $attribute_schema ) {
+					foreach ( $schema['_children'] as $attribute => $attribute_schema ) {
 
 						$this->current_schema_attribute = $attribute;
 
@@ -121,13 +137,11 @@ class Translator {
 						);
 
 					}
-
 				}
-					
+
 				break;
 
 			case 'bool':
-
 				if ( ! is_bool( $state_data ) ) {
 					$this->state_data_errors[] = sprintf( "'%s' needs to be true or false.", $this->current_schema_attribute );
 				}
@@ -135,7 +149,6 @@ class Translator {
 				break;
 
 			case 'numeric':
-
 				if ( ! is_numeric( $state_data ) ) {
 					$this->state_data_errors[] = sprintf( "'%s' needs to be numeric.", $this->current_schema_attribute );
 				}
@@ -143,8 +156,7 @@ class Translator {
 				break;
 
 			case 'text':
-
-				// Nothing to do here
+				// Nothing to do here.
 				if ( $state_data && ! is_string( $state_data ) ) {
 					$this->state_data_errors[] = sprintf( "'%s' needs to be a string.", $this->current_schema_attribute );
 				}
@@ -152,7 +164,6 @@ class Translator {
 				break;
 
 			case 'email':
-
 				if ( $state_data && ! is_email( $state_data ) ) {
 					$this->state_data_errors[] = sprintf( "'%s' needs to be an email address.", $this->current_schema_attribute );
 				}

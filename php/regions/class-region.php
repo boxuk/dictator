@@ -9,34 +9,51 @@ abstract class Region {
 
 	/**
 	 * State's data on the region
+	 *
+	 * @var $data
 	 */
 	protected $data;
 
 	/**
 	 * Current data in the region
+	 *
+	 * @var $current_data
 	 */
 	protected $current_data;
 
 	/**
 	 * Schema for the region
+	 *
+	 * @var $schema
 	 */
 	protected $schema = array();
 
 	/**
 	 * Current schema attribute (used in recursive methods)
+	 *
+	 * @var $current_schema_attribute
 	 */
 	protected $current_schema_attribute = null;
 
 	/**
 	 * Parents of the current schema attribute
+	 *
+	 * @var $current_schema_attribute_parents
 	 */
 	protected $current_schema_attribute_parents = array();
 
 	/**
 	 * Differences between the state file and WordPress
+	 *
+	 * @var $differences
 	 */
 	protected $differences;
 
+	/**
+	 * Region constructor.
+	 *
+	 * @param array $data Data for the region.
+	 */
 	public function __construct( $data ) {
 
 		$this->data = $data;
@@ -62,7 +79,7 @@ abstract class Region {
 
 	/**
 	 * Get the schema for this region
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_schema() {
@@ -73,23 +90,23 @@ abstract class Region {
 	 * Impose some data onto the region
 	 * How the data is interpreted depends
 	 * on the region
-	 * 
-	 * @param string $key
-	 * @param mixed $value
+	 *
+	 * @param string $key Key of the data to impose.
+	 * @param mixed  $value Value of the data to impose.
 	 * @return true|WP_Error
 	 */
 	abstract public function impose( $key, $value );
 
 	/**
 	 * Get the differences between the state file and WordPress
-	 * 
+	 *
 	 * @return array
 	 */
 	abstract public function get_differences();
 
 	/**
 	 * Get the current data for the region
-	 * 
+	 *
 	 * @return array
 	 */
 	public function get_current_data() {
@@ -113,7 +130,8 @@ abstract class Region {
 
 	/**
 	 * Recursively get the current data for the region
-	 * 
+	 *
+	 * @param array $schema Schema array.
 	 * @return mixed
 	 */
 	private function recursively_get_current_data( $schema ) {
@@ -121,17 +139,16 @@ abstract class Region {
 		switch ( $schema['_type'] ) {
 
 			case 'prototype':
-
 				if ( isset( $schema['_get_callback'] ) ) {
 					$prototype_vals = call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 
 					$data = array();
-					if ( ! empty($prototype_vals) ) {
-						foreach( $prototype_vals as $prototype_val ) {
+					if ( ! empty( $prototype_vals ) ) {
+						foreach ( $prototype_vals as $prototype_val ) {
 							$this->current_schema_attribute = $prototype_val;
 
 							$this->current_schema_attribute_parents[] = $prototype_val;
-							$data[ $prototype_val ] = $this->recursively_get_current_data( $schema['_prototype'] );
+							$data[ $prototype_val ]                   = $this->recursively_get_current_data( $schema['_prototype'] );
 							array_pop( $this->current_schema_attribute_parents );
 
 						}
@@ -142,12 +159,11 @@ abstract class Region {
 				break;
 
 			case 'array':
-
-				// Arrays can have schemas defined for each child attribute
+				// Arrays can have schemas defined for each child attribute.
 				if ( ! empty( $schema['_children'] ) ) {
 
 					$data = array();
-					foreach( $schema['_children'] as $attribute => $attribute_schema ) {
+					foreach ( $schema['_children'] as $attribute => $attribute_schema ) {
 
 						$this->current_schema_attribute = $attribute;
 
@@ -161,19 +177,19 @@ abstract class Region {
 					if ( isset( $schema['_get_callback'] ) ) {
 						return call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 					}
-					
 				}
+
+				break;
 
 			case 'text':
 			case 'email':
 			case 'bool':
 			case 'numeric':
-
 				if ( isset( $schema['_get_callback'] ) ) {
 					$value = call_user_func( array( $this, $schema['_get_callback'] ), $this->current_schema_attribute );
 					if ( $schema['_type'] === 'bool' ) {
 						$value = (bool) $value;
-					} else if ( $schema['_type'] === 'numeric' ) {
+					} elseif ( $schema['_type'] === 'numeric' ) {
 						$value = intval( $value );
 					}
 

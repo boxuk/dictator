@@ -1,11 +1,13 @@
 <?php
 
 /**
- * Auto-load Dictator classes
+ * Auto-load Dictator classes.
+ *
+ * @param string $class Class to autoload.
  */
 function dictator_autoloader( $class ) {
 
-	if ( $class[0] === '\\') {
+	if ( $class[0] === '\\' ) {
 		$class = substr( $class, 1 );
 	}
 
@@ -13,7 +15,7 @@ function dictator_autoloader( $class ) {
 		return;
 	}
 
-	// Turn Dictator\States\State into ./php/states/class-state.php
+	// Turn Dictator\States\State into ./php/states/class-state.php.
 	$file_parts = explode( '\\', str_replace( '_', '-', strtolower( $class ) ) );
 	array_shift( $file_parts );
 	$file_name = array_pop( $file_parts );

@@ -12,5 +12,10 @@
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
-    <rule ref="WordPress" />
+    <rule ref="WordPress">
+        <exclude name="Squiz.Commenting.FileComment.Missing"/>
+        <exclude name="Squiz.Commenting.ClassComment.Missing"/>
+        <exclude name="Squiz.Commenting.FileComment.MissingPackageTag"/>
+        <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
+    </rule>
 </ruleset>

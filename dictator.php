@@ -1,7 +1,7 @@
 <?php
 /**
  * Dictator controls the State of WordPress with WP-CLI
- * 
+ *
  * Use wisely.
  */
 
@@ -10,7 +10,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 }
 
 if ( ! defined( 'DICTATOR' ) ) {
-    define( 'DICTATOR', true );
+	define( 'DICTATOR', true );
 }
 
 /**
