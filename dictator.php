@@ -9,7 +9,9 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	return;
 }
 
-define( 'DICTATOR', true );
+if ( ! defined( 'DICTATOR' ) ) {
+    define( 'DICTATOR', true );
+}
 
 /**
  * Some files need to be manually loaded
