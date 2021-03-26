@@ -46,3 +46,7 @@ First time user? Try Dictator out by calling `wp dictator export site site-state
 ## Extending
 
 Even though Dictator is in its infancy, it was written with extensibility in mind. New states can be registered with `Dictator::add_state();`, and can comprise a selection of existing or custom regions. Write a state / region for your plugin / theme to make it easy for your users to export / impose settings.
+
+### Existing extensions
+
+* [Dictator WooCommerce](https://github.com/boxuk/dictator-woocommerce)
