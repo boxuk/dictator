@@ -35,11 +35,6 @@ abstract class Users extends Region {
 					'_required'     => false,
 					'_get_callback' => 'get_user_value',
 				),
-				'user_pass'    => array(
-					'_type'         => 'text',
-					'_required'     => false,
-					'_get_callback' => 'get_user_value',
-				),
 				'role'         => array(
 					'_type'         => 'text',
 					'_required'     => false,
@@ -149,7 +144,7 @@ abstract class Users extends Region {
 			$user_obj = array(
 				'user_login' => $key,
 				'user_email' => $value['email'], // 'email' is required.
-				'user_pass'  => isset( $value['user_pass'] ) ? $value['user_pass'] : wp_generate_password( 24 ), // if no password supplied, generate random password.
+				'user_pass'  => wp_generate_password( 24 ),
 			);
 			$user_id  = wp_insert_user( $user_obj );
 			if ( is_wp_error( $user_id ) ) {

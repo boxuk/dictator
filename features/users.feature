@@ -28,6 +28,16 @@ Feature: Site / Network Users Region
       | Admin One      | adminone@example.com  | administrator     |
       | Editor One     | editorone@example.com | editor            |
 
+    When I run `wp dictator export site export.yml`
+    Then STDOUT should contain:
+    """
+    Success: State written to file.
+    """
+    And the export.yml file should not contain:
+    """
+    user_pass:
+    """
+
   Scenario: Impose Network Users
       Given a WP multisite install
       And a network-users.yml file:
@@ -50,3 +60,13 @@ Feature: Site / Network Users Region
         | display_name   | user_email            |
         | Admin One      | adminone@example.com  |
         | Editor One     | editorone@example.com |
+
+      When I run `wp dictator export network export.yml`
+      Then STDOUT should contain:
+      """
+      Success: State written to file.
+      """
+      And the export.yml file should not contain:
+      """
+      user_pass:
+      """
