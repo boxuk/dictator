@@ -63,3 +63,37 @@ Feature: Network Sites Region
       """
       en_GB
       """
+
+  Scenario: Impose Network Sites with subdomains with main site without a subdomain
+    Given a WP multisite subdomain install
+    And a network-state.yml file:
+      """
+      state: network
+      sites:
+        :
+          title: Main site
+          description: This is the main site with no subdomain required
+          active_theme: p2
+          active_plugins:
+            - akismet/akismet.php
+          timezone_string: Europe/London
+          WPLANG: en_GB
+        sub:
+          title: Sub site
+          description: This is the sub site with a subdomain of 'sub' required
+          active_theme: p2
+          active_plugins:
+            - akismet/akismet.php
+          timezone_string: Europe/London
+          WPLANG: en_GB
+      """
+
+    When I run `wp dictator impose network-state.yml`
+    Then STDOUT should not be empty
+
+    When I run `wp site list --field=url`
+    Then STDOUT should be:
+      """
+      http://example.com/
+      http://sub.example.com/
+      """
