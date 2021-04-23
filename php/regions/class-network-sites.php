@@ -98,6 +98,9 @@ class Network_Sites extends Region {
 	 * @return true|WP_Error
 	 */
 	public function impose( $key, $value ) {
+		if ( $key === '' ) {
+			$key = get_current_site()->domain;
+		}
 
 		$site = $this->get_site( $key );
 		if ( ! $site ) {
@@ -346,8 +349,12 @@ class Network_Sites extends Region {
 		}
 
 		if ( is_subdomain_install() ) {
-			$path      = '/';
-			$newdomain = $base . '.' . preg_replace( '|^www\.|', '', $network->domain );
+			$path   = '/';
+			$prefix = '';
+			if ( $base !== '' ) {
+				$prefix = $base . '.';
+			}
+			$newdomain = $prefix . preg_replace( '|^www\.|', '', $network->domain );
 		} else {
 			$newdomain = $network->domain;
 			$path      = '/' . trim( $base, '/' ) . '/';
