@@ -64,6 +64,49 @@ Feature: Network Sites Region
       en_GB
       """
 
+  Scenario: Impose Network Sites with multiple sites
+    Given a WP multisite install
+    And a network-state.yml file:
+      """
+      state: network
+      sites:
+        :
+          title: Main Site
+          description: Just another WordPress site
+          active_theme: twentytwentyone
+          WPLANG: en_US
+        enolagay:
+          title: Enola Gay
+          description: Just another B-39 Superfortress bomber
+          active_theme: p2
+          active_plugins:
+            - akismet/akismet.php
+          timezone_string: Europe/London
+          WPLANG: en_GB
+      """
+
+    When I run `wp dictator impose network-state.yml`
+    Then STDOUT should not be empty
+
+    When I run `wp site list --field=url`
+    Then STDOUT should be:
+      """
+      http://example.com/
+      http://example.com/enolagay/
+      """
+
+    When I run `wp --url=example.com option get blogname`
+    Then STDOUT should be:
+      """
+      Main Site
+      """
+
+    When I run `wp --url=example.com/enolagay option get blogname`
+    Then STDOUT should be:
+      """
+      Enola Gay
+      """
+
   Scenario: Impose Network Sites with subdomains with main site without a subdomain
     Given a WP multisite subdomain install
     And a network-state.yml file:
