@@ -88,6 +88,9 @@ Feature: Network Sites Region
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
 
+    When I run `wp dictator compare network-state.yml`
+    Then STDOUT should be empty
+
     When I run `wp site list --field=url`
     Then STDOUT should be:
       """
@@ -120,10 +123,10 @@ Feature: Network Sites Region
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
-          WPLANG: en_GB
+          WPLANG: en_US
         sub:
           title: Sub site
-          description: This is the sub site with a subdomain of 'sub' required
+          description: This is the sub site with a subdomain of sub required
           active_theme: p2
           active_plugins:
             - akismet/akismet.php
@@ -134,9 +137,48 @@ Feature: Network Sites Region
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
 
+    When I run `wp dictator compare network-state.yml`
+    Then STDOUT should be empty
+
     When I run `wp site list --field=url`
     Then STDOUT should be:
       """
       http://example.com/
       http://sub.example.com/
+      """
+
+  Scenario: Impose Network Sites with custom domains
+    Given a WP multisite install
+    And a network-state.yml file:
+      """
+      state: network
+      sites:
+        :
+          custom_domain: example.com
+          title: Main Site
+          description: Just another WordPress site
+          active_theme: twentytwentyone
+          WPLANG: en_US
+        enolagay:
+          custom_domain: enolagay.dev
+          title: Enola Gay
+          description: Just another B-29 Superfortress bomber
+          active_theme: p2
+          active_plugins:
+            - akismet/akismet.php
+          timezone_string: Europe/London
+          WPLANG: en_GB
+      """
+
+    When I run `wp dictator impose network-state.yml`
+    Then STDOUT should not be empty
+
+    When I run `wp dictator compare network-state.yml`
+    Then STDOUT should be empty
+
+    When I run `wp site list --field=url`
+    Then STDOUT should be:
+      """
+      http://example.com/
+      http://enolagay.dev/
       """
