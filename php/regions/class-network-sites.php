@@ -98,7 +98,7 @@ class Network_Sites extends Region {
 	 * @return true|WP_Error
 	 */
 	public function impose( $key, $value ) {
-		if ( $key === '' ) {
+		if ( $key === '' && is_subdomain_install() ) {
 			$key = get_current_site()->domain;
 		}
 
