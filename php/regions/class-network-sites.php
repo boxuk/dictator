@@ -18,6 +18,11 @@ class Network_Sites extends Region {
 		'_prototype'    => array(
 			'_type'     => 'array',
 			'_children' => array(
+				'custom_domain'   => array(
+					'_type'         => 'text',
+					'_required'     => false,
+					'_get_callback' => 'get_site_value',
+				),
 				'title'           => array(
 					'_type'         => 'text',
 					'_required'     => false,
@@ -77,12 +82,14 @@ class Network_Sites extends Region {
 
 		$this->differences = array();
 		// Check each declared site in state data against WordPress.
-		foreach ( $this->get_imposed_data() as $site_slug => $site_data ) {
+		foreach ( $this->get_imposed_data() as $site_label => $site_data ) {
 
-			$site_result = $this->get_site_difference( $site_slug, $site_data );
+			$custom_domain = isset( $site_data['custom_domain'] ) ? $site_data['custom_domain'] : '';
+			$site_slug     = $this->get_site_slug( get_current_site(), $site_label, $custom_domain );
+			$site_result   = $this->get_site_difference( $site_slug, $site_data );
 
 			if ( ! empty( $site_result ) ) {
-				$this->differences[ $site_slug ] = $site_result;
+				$this->differences[ $site_label ] = $site_result;
 			}
 		}
 
@@ -98,11 +105,10 @@ class Network_Sites extends Region {
 	 * @return true|WP_Error
 	 */
 	public function impose( $key, $value ) {
-		if ( $key === '' && is_subdomain_install() ) {
-			$key = get_current_site()->domain;
-		}
+		$custom_domain = isset( $value['custom_domain'] ) ? $value['custom_domain'] : '';
+		$site_slug     = $this->get_site_slug( get_current_site(), $key, $custom_domain );
 
-		$site = $this->get_site( $key );
+		$site = $this->get_site( $site_slug );
 		if ( ! $site ) {
 			$site = $this->create_site( $key, $value );
 			if ( is_wp_error( $site ) ) {
@@ -200,11 +206,7 @@ class Network_Sites extends Region {
 
 		$this->sites = array();
 		foreach ( $sites as $site ) {
-			if ( is_subdomain_install() ) {
-				$site_slug = str_replace( '.' . get_current_site()->domain, '', $site->domain );
-			} else {
-				$site_slug = trim( $site->path, '/' );
-			}
+			$site_slug                 = $this->get_site_slug( $site );
 			$this->sites[ $site_slug ] = $site;
 		}
 		return array_keys( $this->sites );
@@ -225,6 +227,9 @@ class Network_Sites extends Region {
 
 		switch ( $key ) {
 
+			case 'custom_domain':
+				$value = isset( $site->domain ) ? $site->domain : '';
+				break;
 			case 'title':
 			case 'description':
 			case 'active_theme':
@@ -360,6 +365,13 @@ class Network_Sites extends Region {
 			$path      = '/' . trim( $base, '/' ) . '/';
 		}
 
+		// Custom domain trumps all.
+		if ( ! empty( $value['custom_domain'] ) ) {
+			$newdomain = $value['custom_domain'];
+			$path      = '/';
+			unset( $value['custom_domain'] );
+		}
+
 		$user_id      = 0;
 		$super_admins = get_super_admins();
 		if ( ! empty( $super_admins ) && is_array( $super_admins ) ) {
@@ -380,9 +392,33 @@ class Network_Sites extends Region {
 		} else {
 			// Reset our internal cache.
 			unset( $this->sites );
-			return $this->get_site( $base );
+			return $this->get_site( $this->get_site_slug( get_site( $id ) ) );
 		}
 
+	}
+
+	/**
+	 * Use the domain plus path for the slug of or sites array. We can pass a key to overwrite path,
+	 * we can pass a custom domain which overwrites the domain and 'resets' the path.
+	 *
+	 * @param \WP_Site | \WP_Network $site_or_network A site or network object.
+	 * @param string                 $key A key to overwrite path if not using a custom domain.
+	 * @param string                 $custom_domain A custom domain to overwrite the domain and reset the path.
+	 */
+	private function get_site_slug( $site_or_network, $key = '', $custom_domain = '' ) {
+		$domain = $site_or_network->domain;
+		$path   = $key !== '' ? '/' . $key : $site_or_network->path;
+
+		if ( ! empty( $custom_domain ) && $domain !== $custom_domain ) {
+			$domain = $custom_domain;
+			$path   = '/';
+		}
+
+		if ( $path !== '/' && is_subdomain_install() ) {
+			return trim( $path . '.' . $domain, '/' );
+		}
+
+		return trim( $domain . $path, '/' );
 	}
 
 }
