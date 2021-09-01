@@ -1,0 +1,13 @@
+network:
+    settings:
+        title: "Test"
+        admin_email: "example@example.com"
+        super_admins:
+            - admin
+    site1:
+        settings:
+            title: "Test site1"
+            admin_email: "site1@example.com"
+        woocommerce:
+            general: []
+    site2: []

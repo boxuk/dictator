@@ -1,0 +1,7 @@
+site:
+    settings:
+        title: "Test"
+        admin_email: "example@example.com"
+    woocommerce:
+        BoxUk\Dictator\Region\WooCommerceGeneral:
+            currency: GBP
