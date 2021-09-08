@@ -33,9 +33,13 @@ First make sure you have run composer with dev dependencies:
 Then you'll need to export the following vars (update the values accordingly):
 
 `export WP_CLI_TEST_DBROOTUSER=root`
+
 `export WP_CLI_TEST_DBROOTPASS=root`
+
 `export WP_CLI_TEST_DBUSER=wp_cli_test`
+
 `export WP_CLI_TEST_DBPASS=password1`
+
 `export WP_CLI_TEST_DBHOST=localhost`
 
 Finally...
