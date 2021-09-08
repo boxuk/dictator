@@ -405,7 +405,7 @@ class Network_Sites extends Region {
 	 * @param string                 $key A key to overwrite path if not using a custom domain.
 	 * @param string                 $custom_domain A custom domain to overwrite the domain and reset the path.
 	 */
-	private function get_site_slug( $site_or_network, $key = '', $custom_domain = '' ) {
+	protected function get_site_slug( $site_or_network, $key = '', $custom_domain = '' ) {
 		$domain = $site_or_network->domain;
 		$path   = $key !== '' ? '/' . $key : $site_or_network->path;
 
