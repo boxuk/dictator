@@ -1,5 +1,9 @@
 language: php
 
+dist: focal
+
+php: 7.4
+
 branches:
     only:
         - master
@@ -29,6 +33,8 @@ script:
     - composer behat || composer behat-rerun
 
 jobs:
+    allow_failures:
+        - php: 8.1.2
     include:
         -   stage: lint
             script:
@@ -36,9 +42,11 @@ jobs:
                 - composer phpcs
             env: BUILD=lint
         -   stage: test
-            php: 5.6
-            env:
-                - WP_VERSION=latest
-        -   stage: test
             php: 7.4
+            env: WP_VERSION=latest
+        -   stage: test
+            php: 8.0
+            env: WP_VERSION=latest
+        -   stage: test
+            php: 8.1.2
             env: WP_VERSION=latest

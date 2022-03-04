@@ -94,8 +94,8 @@ Feature: Network Sites Region
     When I run `wp site list --field=url`
     Then STDOUT should be:
       """
-      http://example.com/
-      http://example.com/enolagay/
+      https://example.com/
+      https://example.com/enolagay/
       """
 
     When I run `wp --url=example.com option get blogname`
@@ -143,7 +143,7 @@ Feature: Network Sites Region
     When I run `wp site list --field=url`
     Then STDOUT should be:
       """
-      http://example.com/
+      https://example.com/
       http://sub.example.com/
       """
 
@@ -179,6 +179,6 @@ Feature: Network Sites Region
     When I run `wp site list --field=url`
     Then STDOUT should be:
       """
-      http://example.com/
-      http://enolagay.dev/
+      https://example.com/
+      https://enolagay.dev/
       """

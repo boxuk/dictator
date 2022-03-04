@@ -42,6 +42,14 @@ Then you'll need to export the following vars (update the values accordingly):
 
 `export WP_CLI_TEST_DBHOST=localhost`
 
+Then you'll need to prepare the tests:
+
+`composer prepare-tests`
+
+Then run the tests with:
+
+`composer behat`
+
 Finally...
 ----------
 
