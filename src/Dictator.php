@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BoxUk\Dictator;
 
+use BoxUk\Dictator\State\InvalidStateException;
 use BoxUk\Dictator\State\State;
 
 class Dictator
@@ -101,21 +102,49 @@ class Dictator
      * Get the object for a given state
      *
      * @param string $name Name of the state.
-     * @param array|null  $yaml Data from the state file.
-     * @return State|false
+     * @param array|null $yaml Data from the state file.
+     *
+     * @return State
+     * @throws InvalidStateException If State is not valid.
      */
-    public static function getStateObj(string $name, ?array $yaml = null)
+    public static function getStateObj(string $name, ?array $yaml = null): State
     {
         if (self::calledStatically()) {
             return self::getInstance()->getStateObj($name, $yaml);
         }
 
         if (! isset(self::$instance->states[ $name ])) {
-            return false;
+            throw new InvalidStateException(
+                sprintf(
+                    'State "%s" is not registered with Dictator',
+                    $name
+                )
+            );
         }
 
         $class = self::$instance->states[ $name ]['class'];
 
-        return new $class($yaml);
+        if (! class_exists($class)) {
+            throw new InvalidStateException(
+                sprintf(
+                    'No class "%s" exists for state "%s"',
+                    $class,
+                    $name
+                )
+            );
+        }
+
+        $stateObj = new $class($yaml);
+
+        if (! $stateObj instanceof State) {
+            throw new InvalidStateException(
+                sprintf(
+                    'Class "%s" does not implement State',
+                    $class
+                )
+            );
+        }
+
+        return $stateObj;
     }
 }

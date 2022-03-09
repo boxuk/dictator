@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BoxUk\Dictator\State;
 
+use BoxUk\Dictator\Region\InvalidRegionException;
 use BoxUk\Dictator\Region\Region;
 
 /**
@@ -38,15 +39,37 @@ abstract class State
     /**
      * Get the regions associated with this state
      *
-     * @return array
+     * @return Region[]
+     * @throws InvalidRegionException If Region is not valid.
      */
     public function getRegions(): array
     {
         $regions = [];
         foreach ($this->regions as $name => $class) {
-            $data = (! empty($this->yaml[ $name ])) ? $this->yaml[ $name ] : [];
+            $data = ! empty($this->yaml[$name]) ? $this->yaml[$name] : [];
 
-            $regions[ $name ] = new $class($data);
+            if (! class_exists($class)) {
+                throw new InvalidRegionException(
+                    sprintf(
+                        'No class "%s" exists for region "%s"',
+                        $class,
+                        $name
+                    )
+                );
+            }
+
+            $regionObj = new $class($data);
+
+            if (! $regionObj instanceof Region) {
+                throw new InvalidRegionException(
+                    sprintf(
+                        'Class "%s" does not implement Region',
+                        $class
+                    )
+                );
+            }
+
+            $regions[ $name ] = $regionObj;
         }
         return $regions;
     }

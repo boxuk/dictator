@@ -19,9 +19,9 @@ abstract class Region
     /**
      * Current data in the region
      *
-     * @var $currentData
+     * @var array $currentData
      */
-    protected $currentData;
+    protected array $currentData;
 
     /**
      * Schema for the region
@@ -70,11 +70,7 @@ abstract class Region
     public function isUnderAccord(): bool
     {
         $results = $this->getDifferences();
-        if (empty($results)) {
-            return true;
-        }
-
-        return false;
+        return empty($results);
     }
 
     /**
@@ -94,9 +90,10 @@ abstract class Region
      *
      * @param string $key Key of the data to impose.
      * @param mixed  $value Value of the data to impose.
-     * @return true|\WP_Error
+     *
+     * @throws CouldNotImposeRegionException If the region could not be imposed.
      */
-    abstract public function impose(string $key, $value);
+    abstract public function impose(string $key, $value): void;
 
     /**
      * Get the differences between the state file and WordPress
@@ -175,21 +172,26 @@ abstract class Region
 
                 break;
 
-            case 'text':
-            case 'email':
             case 'bool':
+                if (isset($schema['_get_callback'])) {
+                    $value = $this->{$schema['_get_callback']}($this->currentSchemaAttribute);
+                    return (bool) $value;
+                }
+                break;
             case 'numeric':
                 if (isset($schema['_get_callback'])) {
                     $value = $this->{$schema['_get_callback']}($this->currentSchemaAttribute);
-                    if ($schema['_type'] === 'bool') {
-                        $value = (bool) $value;
-                    } elseif ($schema['_type'] === 'numeric') {
-                        $value = (int)$value;
-                    }
-
-                    return $value;
+                    return (int) $value;
+                }
+                break;
+            case 'text':
+            case 'email':
+                if (isset($schema['_get_callback'])) {
+                    return $this->{$schema['_get_callback']}($this->currentSchemaAttribute);
                 }
                 break;
         }
+
+        return [];
     }
 }
