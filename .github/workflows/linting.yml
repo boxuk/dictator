@@ -1,0 +1,83 @@
+name: Linting
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint PHP files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: cs2pr, composer:v2
+
+      - name: Get Composer cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"          
+
+      - name: Use Composer cache
+        uses: actions/cache@master
+        with:
+          path: ${{ steps['composer-cache'].outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-          
+
+      - name: Install Composer dependencies & cache dependencies
+        run: composer update --prefer-stable --prefer-dist --no-progress --no-interaction
+
+      - name: Check existence of vendor/bin/parallel-lint file
+        id: check_linter_file
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "vendor/bin/parallel-lint"
+
+      - name: Run Linter
+        if: steps.check_linter_file.outputs.files_exists == 'true'
+        run: vendor/bin/parallel-lint -j 10 . --exclude vendor --exclude tools --checkstyle | cs2pr
+
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: cs2pr, composer:v2
+
+      - name: Get Composer cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"          
+
+      - name: Use Composer cache
+        uses: actions/cache@master
+        with:
+          path: ${{ steps['composer-cache'].outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-          
+
+      - name: Install Composer dependencies & cache dependencies
+        run: composer update --prefer-stable --prefer-dist --no-progress --no-interaction
+
+      - name: Check existence of tools/php-cs-fixer/vendor/bin/php-cs-fixer file
+        id: check_php-cs-fixer_binary_file
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "tools/php-cs-fixer/vendor/bin/php-cs-fixer"
+
+      - name: Run PHPCS
+        if: steps.check_php-cs-fixer_binary_file.outputs.files_exists == 'true'
+        run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --diff --dry-run | cs2pr
