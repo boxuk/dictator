@@ -1,5 +1,7 @@
 language: php
 
+dist: focal
+
 branches:
     only:
         - master
@@ -22,26 +24,30 @@ env:
         - WP_CLI_TEST_DBHOST=127.0.0.1
 
 install:
-    - composer install
+    - composer update
     - composer prepare-tests
+    - composer install-tools
 
 script:
     - composer behat || composer behat-rerun
 
 jobs:
+    allow_failures:
+        - php: 8.1.0 # PHP 8.1 times out currently.
     include:
         -   stage: lint
             script:
                 - composer lint
-                - composer phpcs
+                - composer php-cs-fixer:test
+            php: 7.4
             env: BUILD=lint
         -   stage: test
-            php: 5.6
+            php: 7.4
             env:
                 - WP_VERSION=latest
         -   stage: test
-            php: 7.4
+            php: 8.0
             env: WP_VERSION=latest
         -   stage: test
-            php: 8.0
+            php: 8.1.0
             env: WP_VERSION=latest

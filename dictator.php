@@ -1,25 +1,28 @@
 <?php
 /**
- * Dictator controls the State of WordPress with WP-CLI
- *
- * Use wisely.
+ * Dictator controls the State of WordPress with WP-CLI.
  */
 
-if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
-	return;
+declare(strict_types=1);
+
+use BoxUk\Dictator\Command;
+use BoxUk\Dictator\Dictator;
+use BoxUk\Dictator\State\Network;
+use BoxUk\Dictator\State\Site;
+
+if (! defined('WP_CLI') || ! WP_CLI) {
+    return;
 }
 
-if ( ! defined( 'DICTATOR' ) ) {
-	define( 'DICTATOR', true );
+if (! defined('DICTATOR')) {
+    define('DICTATOR', true);
 }
 
-/**
- * Some files need to be manually loaded
- */
-require_once dirname( __FILE__ ) . '/autoload.php';
-require_once dirname( __FILE__ ) . '/php/class-dictator.php';
-require_once dirname( __FILE__ ) . '/php/class-dictator-translator.php';
-require_once dirname( __FILE__ ) . '/php/class-dictator-cli-command.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 
-Dictator::add_state( 'network', '\Dictator\States\Network' );
-Dictator::add_state( 'site', '\Dictator\States\Site' );
+WP_CLI::add_command('dictator', Command::class);
+
+Dictator::addState('network', Network::class);
+Dictator::addState('site', Site::class);
