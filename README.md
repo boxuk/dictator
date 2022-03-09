@@ -1,6 +1,7 @@
 # Dictator
 
-[![Build Status](https://app.travis-ci.com/boxuk/dictator.svg?branch=master)](https://app.travis-ci.com/boxuk/dictator)
+[![Linting status](https://github.com/boxuk/dictator/actions/workflows/linting.yml/badge.svg)](https://github.com/boxuk/dictator/actions/workflows/linting.yml)
+[![Testing status](https://github.com/boxuk/dictator/actions/workflows/testing.yml/badge.svg)](https://github.com/boxuk/dictator/actions/workflows/testing.yml)
 
 ## Attribution
 
