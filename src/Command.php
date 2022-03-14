@@ -152,10 +152,8 @@ class Command extends WP_CLI_Command
             foreach ($differences as $slug => $difference) {
                 $this->showDifference($slug, $difference);
 
-                $toImpose = Utils::arrayDiffRecursive($difference['dictated'], $difference['current']);
-
                 try {
-                    $regionObj->impose($slug, $toImpose);
+                    $regionObj->impose($slug, $difference['dictated'] ?? []);
                 } catch (CouldNotImposeRegionException $e) {
                     WP_CLI::warning($e->getMessage());
                 }
