@@ -14,61 +14,61 @@ class NetworkSettings extends Region
      * @var array $schema
      */
     protected array $schema = [
-        '_type'     => 'array',
+        '_type' => 'array',
         '_children' => [
-            'title'                 => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'title' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'admin_email'           => [
-                '_type'         => 'email',
-                '_required'     => false,
+            'admin_email' => [
+                '_type' => 'email',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'super_admins'          => [
-                '_type'         => 'array',
-                '_required'     => false,
+            'super_admins' => [
+                '_type' => 'array',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'registration'          => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'registration' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'notify_registration'   => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'notify_registration' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'upload_filetypes'      => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'upload_filetypes' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
             'site_unlimited_upload' => [
-                '_type'         => 'bool',
-                '_required'     => false,
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'site_upload_space'     => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'site_upload_space' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'site_max_upload'       => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'site_max_upload' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'enabled_themes'        => [
-                '_type'         => 'array',
-                '_required'     => false,
+            'enabled_themes' => [
+                '_type' => 'array',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'active_plugins'        => [
-                '_type'         => 'array',
-                '_required'     => false,
+            'active_plugins' => [
+                '_type' => 'array',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
         ],
@@ -80,14 +80,14 @@ class NetworkSettings extends Region
      * @var array $optionsMap
      */
     protected array $optionsMap = [
-        'title'                 => 'site_name',
-        'super_admins'          => 'site_admins',
-        'notify_registration'   => 'registrationnotification',
+        'title' => 'site_name',
+        'super_admins' => 'site_admins',
+        'notify_registration' => 'registrationnotification',
         'site_unlimited_upload' => 'upload_space_check_disabled',
-        'site_upload_space'     => 'blog_upload_space',
-        'site_max_upload'       => 'fileupload_maxk',
-        'enabled_themes'        => 'allowedthemes',
-        'active_plugins'        => 'active_sitewide_plugins',
+        'site_upload_space' => 'blog_upload_space',
+        'site_max_upload' => 'fileupload_maxk',
+        'enabled_themes' => 'allowedthemes',
+        'active_plugins' => 'active_sitewide_plugins',
     ];
 
     /**
@@ -97,10 +97,8 @@ class NetworkSettings extends Region
      *
      * @param string  $_ Unused.
      * @param array $options Options to impose.
-     *
-     * @return true|\WP_Error
      */
-    public function impose(string $_, $options)
+    public function impose(string $_, $options): void
     {
         foreach ($options as $key => $value) {
             if (array_key_exists($key, $this->optionsMap)) {
@@ -141,8 +139,6 @@ class NetworkSettings extends Region
                     break;
             }
         }
-
-        return true;
     }
 
     /**
@@ -185,7 +181,7 @@ class NetworkSettings extends Region
 
             case 'registrationnotification':
                 // Coerce to boolean.
-                return ('yes' === get_site_option($name));
+                return 'yes' === get_site_option($name);
             default:
                 return get_site_option($name);
         }

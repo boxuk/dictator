@@ -5,3 +5,4 @@ composer.phar
 composer.lock
 .php-cs-fixer.cache
 /tools/**/vendor
+.phpunit.result.cache

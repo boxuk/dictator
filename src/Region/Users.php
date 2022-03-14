@@ -6,40 +6,42 @@ namespace BoxUk\Dictator\Region;
 
 abstract class Users extends Region
 {
+    private const GENERATED_PASSWORD_LENGTH = 24;
+
     /**
      * Users schema.
      *
      * @var array
      */
     protected array $schema = [
-        '_type'         => 'prototype',
+        '_type' => 'prototype',
         '_get_callback' => 'getUsers',
-        '_prototype'    => [
-            '_type'     => 'array',
+        '_prototype' => [
+            '_type' => 'array',
             '_children' => [
                 'display_name' => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getUserValue',
                 ],
-                'first_name'   => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'first_name' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getUserValue',
                 ],
-                'last_name'    => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'last_name' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getUserValue',
                 ],
-                'email'        => [
-                    '_type'         => 'email',
-                    '_required'     => false,
+                'email' => [
+                    '_type' => 'email',
+                    '_required' => false,
                     '_get_callback' => 'getUserValue',
                 ],
-                'role'         => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'role' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getUserValue',
                 ],
             ],
@@ -133,10 +135,11 @@ abstract class Users extends Region
      * Impose some state data onto a region
      *
      * @param string $key User login.
-     * @param array  $value User's data.
-     * @return true|\WP_Error
+     * @param array $value User's data.
+     *
+     * @throws CouldNotImposeRegionException If the region could not be imposed.
      */
-    public function impose(string $key, $value)
+    public function impose(string $key, $value): void
     {
 
         // We'll need to create the user if they don't exist.
@@ -145,11 +148,11 @@ abstract class Users extends Region
             $userObj = [
                 'user_login' => $key,
                 'user_email' => $value['email'], // 'email' is required.
-                'user_pass'  => wp_generate_password(24),
+                'user_pass' => wp_generate_password(self::GENERATED_PASSWORD_LENGTH),
             ];
-            $userId  = wp_insert_user($userObj);
+            $userId = wp_insert_user($userObj);
             if (is_wp_error($userId)) {
-                return $userId;
+                throw new CouldNotImposeRegionException($userId->get_error_message());
             }
 
             // Network users should default to no roles / capabilities.
@@ -183,13 +186,12 @@ abstract class Users extends Region
             if ($user->$modelField !== $singleValue) {
                 wp_update_user(
                     [
-                        'ID'         => $user->ID,
+                        'ID' => $user->ID,
                         $modelField => $singleValue,
                     ]
                 );
             }
         }
-        return true;
     }
 
     /**
@@ -197,13 +199,13 @@ abstract class Users extends Region
      *
      * @param string $userLogin User login.
      * @param array  $userData User's data.
-     * @return array|false
+     * @return array
      */
-    protected function getUserDifference(string $userLogin, array $userData)
+    protected function getUserDifference(string $userLogin, array $userData): array
     {
         $result = [
             'dictated' => $userData,
-            'current'  => [],
+            'current' => [],
         ];
 
         $users = $this->getCurrentData();
@@ -217,13 +219,15 @@ abstract class Users extends Region
             return $result;
         }
 
-        return false;
+        return [];
     }
 
     /**
      * Get the context in which this class was called
+     *
+     * @return string
      */
-    protected function getContext()
+    protected function getContext(): string
     {
         $className = get_class($this);
         if (NetworkUsers::class === $className) {
@@ -234,6 +238,6 @@ abstract class Users extends Region
             return 'site';
         }
 
-        return false;
+        return '';
     }
 }

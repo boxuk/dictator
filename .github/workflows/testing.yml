@@ -3,6 +3,42 @@ name: Testing
 on: [push, pull_request]
 
 jobs:
+  unit:
+    name: Unit
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '${{ matrix.php }}'
+          tools: composer:v2
+
+      - name: Get Composer cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Use Composer cache
+        uses: actions/cache@master
+        with:
+          path: ${{ steps['composer-cache'].outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer update --prefer-stable --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPUnit
+        run: composer phpunit
+
   functional:
     name: Functional - WP ${{ matrix.wp }} on PHP ${{ matrix.php }} with MySQL ${{ matrix.mysql }}
     continue-on-error: ${{ matrix.experimental == true }}

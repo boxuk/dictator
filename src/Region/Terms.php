@@ -14,30 +14,30 @@ class Terms extends Region
      * @var array $schema
      */
     protected array $schema = [
-        '_type'         => 'prototype',
+        '_type' => 'prototype',
         '_get_callback' => 'getTaxonomies',
-        '_prototype'    => [
-            '_type'         => 'prototype',
+        '_prototype' => [
+            '_type' => 'prototype',
             '_get_callback' => 'getTerms',
-            '_prototype'    => [
-                '_type'     => 'array',
+            '_prototype' => [
+                '_type' => 'array',
                 '_children' => [
-                    'name'        => [
-                        '_type'            => 'text',
-                        '_required'        => false,
-                        '_get_callback'    => 'getTermValue',
+                    'name' => [
+                        '_type' => 'text',
+                        '_required' => false,
+                        '_get_callback' => 'getTermValue',
                         '_update_callback' => '',
                     ],
                     'description' => [
-                        '_type'            => 'text',
-                        '_required'        => false,
-                        '_get_callback'    => 'getTermValue',
+                        '_type' => 'text',
+                        '_required' => false,
+                        '_get_callback' => 'getTermValue',
                         '_update_callback' => '',
                     ],
-                    'parent'      => [
-                        '_type'            => 'text',
-                        '_required'        => false,
-                        '_get_callback'    => 'getTermValue',
+                    'parent' => [
+                        '_type' => 'text',
+                        '_required' => false,
+                        '_get_callback' => 'getTermValue',
                         '_update_callback' => '',
                     ],
                 ],
@@ -58,13 +58,14 @@ class Terms extends Region
      * on the region
      *
      * @param string $key Key of the data to impose.
-     * @param mixed  $value Value to impose.
-     * @return bool|\WP_Error
+     * @param mixed $value Value to impose.
+     *
+     * @throws CouldNotImposeRegionException If the region could not be imposed.
      */
-    public function impose(string $key, $value)
+    public function impose(string $key, $value): void
     {
         if (! taxonomy_exists($key)) {
-            return new \WP_Error('invalid-taxonomy', 'Invalid taxonomy');
+            throw new CouldNotImposeRegionException(sprintf('Invalid taxonomy "%s"', $key));
         }
 
         foreach ($value as $slug => $termValues) {
@@ -72,7 +73,7 @@ class Terms extends Region
             if (! $term) {
                 $ret = wp_insert_term($slug, $key);
                 if (is_wp_error($ret)) {
-                    return $ret;
+                    throw new CouldNotImposeRegionException($ret->get_error_message());
                 }
                 $term = get_term_by('id', $ret['term_id'], $key);
             }
@@ -93,7 +94,7 @@ class Terms extends Region
                         if ($termValue) {
                             $parent_term = get_term_by('slug', $termValue, $key);
                             if (! $parent_term) {
-                                return new \WP_Error('invalid-parent', sprintf('Parent is invalid for term: %s', $slug));
+                                throw new CouldNotImposeRegionException(sprintf('Parent is invalid for term "%s"', $slug));
                             }
 
                             if ($parent_term->term_id === $term->parent) {
@@ -101,7 +102,7 @@ class Terms extends Region
                             }
 
                             wp_update_term($term->term_id, $key, [ 'parent' => $parent_term->term_id ]);
-                        } elseif (! $termValue && $term->parent) {
+                        } elseif ($term->parent) {
                             wp_update_term($term->term_id, $key, [ 'parent' => 0 ]);
                         }
 
@@ -109,8 +110,6 @@ class Terms extends Region
                 }
             }
         }
-
-        return true;
     }
 
     /**
@@ -170,8 +169,8 @@ class Terms extends Region
      */
     public function getTermValue(string $key): string
     {
-        $taxonomy  = $this->currentSchemaAttributeParents[0];
-        $termSlug = $this->currentSchemaAttributeParents[1];
+        [$taxonomy, $termSlug] = $this->currentSchemaAttributeParents;
+
         foreach ($this->terms[ $taxonomy ] as $term) {
             if ($term->slug === $termSlug) {
                 break;
@@ -179,7 +178,6 @@ class Terms extends Region
         }
 
         switch ($key) {
-
             case 'parent':
                 $parent = false;
                 foreach ($this->terms[ $taxonomy ] as $maybeParentTerm) {
@@ -187,11 +185,7 @@ class Terms extends Region
                         $parent = $maybeParentTerm;
                     }
                 }
-                if (! empty($parent)) {
-                    $value = $parent->slug;
-                } else {
-                    $value = '';
-                }
+                $value = $parent->slug ?? '';
                 break;
 
             default:
@@ -209,13 +203,13 @@ class Terms extends Region
      *
      * @param string $taxonomy Taxonomy to get difference for.
      * @param array  $taxonomyData Taxonomy data.
-     * @return array|false
+     * @return array
      */
-    protected function getTaxonomyDifference(string $taxonomy, array $taxonomyData)
+    protected function getTaxonomyDifference(string $taxonomy, array $taxonomyData): array
     {
         $result = [
             'dictated' => $taxonomyData,
-            'current'  => [],
+            'current' => [],
         ];
 
         $currentData = $this->getCurrentData();
@@ -229,6 +223,6 @@ class Terms extends Region
             return $result;
         }
 
-        return false;
+        return [];
     }
 }

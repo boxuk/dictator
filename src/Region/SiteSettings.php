@@ -14,136 +14,136 @@ class SiteSettings extends Region
      * @var array $schema
      */
     protected array $schema = [
-        '_type'     => 'array',
+        '_type' => 'array',
         '_children' => [
             /**
              * General
              */
-            'title'               => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'title' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'description'         => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'description' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'admin_email'         => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'admin_email' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'timezone'            => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'timezone' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'WPLANG'              => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'WPLANG' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'date_format'         => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'date_format' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'time_format'         => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'time_format' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
             /**
              * Reading
              */
-            'public'              => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'public' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'posts_per_page'      => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'posts_per_page' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'posts_per_feed'      => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'posts_per_feed' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'feed_uses_excerpt'   => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'feed_uses_excerpt' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'show_on_front'       => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'show_on_front' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'page_on_front'       => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'page_on_front' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'page_for_posts'      => [
-                '_type'         => 'numeric',
-                '_required'     => false,
+            'page_for_posts' => [
+                '_type' => 'numeric',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
             /**
              * Discussion
              */
-            'allow_comments'      => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'allow_comments' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'allow_pingbacks'     => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'allow_pingbacks' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'notify_comments'     => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'notify_comments' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'notify_moderation'   => [
-                '_type'         => 'bool',
-                '_required'     => false,
+            'notify_moderation' => [
+                '_type' => 'bool',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
             /**
              * Permalinks
              */
             'permalink_structure' => [
-                '_type'         => 'text',
-                '_required'     => false,
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'category_base'       => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'category_base' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'tag_base'            => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'tag_base' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
             /**
              * Theme / plugins
              */
-            'active_theme'        => [
-                '_type'         => 'text',
-                '_required'     => false,
+            'active_theme' => [
+                '_type' => 'text',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
-            'active_plugins'      => [
-                '_type'         => 'array',
-                '_required'     => false,
+            'active_plugins' => [
+                '_type' => 'array',
+                '_required' => false,
                 '_get_callback' => 'get',
             ],
         ],
@@ -155,15 +155,15 @@ class SiteSettings extends Region
      * @var array $optionsMap
      */
     protected array $optionsMap = [
-        'title'             => 'blogname',
-        'description'       => 'blogdescription',
-        'timezone'          => 'timezone_string',
-        'public'            => 'blog_public',
-        'posts_per_feed'    => 'posts_per_rss',
+        'title' => 'blogname',
+        'description' => 'blogdescription',
+        'timezone' => 'timezone_string',
+        'public' => 'blog_public',
+        'posts_per_feed' => 'posts_per_rss',
         'feed_uses_excerpt' => 'rss_use_excerpt',
-        'allow_comments'    => 'default_comment_status',
-        'allow_pingbacks'   => 'default_ping_status',
-        'notify_comments'   => 'comments_notify',
+        'allow_comments' => 'default_comment_status',
+        'allow_pingbacks' => 'default_ping_status',
+        'notify_comments' => 'comments_notify',
         'notify_moderation' => 'moderation_notify',
     ];
 
@@ -174,17 +174,15 @@ class SiteSettings extends Region
      *
      * @param string $_ Unused.
      * @param array $options Options to impose.
-     * @return true|\WP_Error
      */
-    public function impose(string $_, $options)
+    public function impose(string $_, $options): void
     {
         foreach ($options as $key => $value) {
             if (array_key_exists($key, $this->optionsMap)) {
-                $key = $this->optionsMap[ $key ];
+                $key = $this->optionsMap[$key];
             }
 
             switch ($key) {
-
                 case 'active_theme':
                     if ($value !== get_option('stylesheet')) {
                         switch_theme($value);
@@ -204,7 +202,7 @@ class SiteSettings extends Region
                 case 'rss_use_excerpt':
                 case 'comments_notify':
                 case 'moderation_notify':
-                    update_option($key, (int)$value);
+                    update_option($key, (int) $value);
                     break;
 
                 // Boolean stored as 'open' or 'closed'.
@@ -222,8 +220,6 @@ class SiteSettings extends Region
                     break;
             }
         }
-
-        return true;
     }
 
     /**
@@ -235,7 +231,7 @@ class SiteSettings extends Region
     {
         $result = [
             'dictated' => $this->getImposedData(),
-            'current'  => $this->getCurrentData(),
+            'current' => $this->getCurrentData(),
         ];
 
         if (Utils::arrayDiffRecursive($result['dictated'], $result['current'])) {

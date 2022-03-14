@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace BoxUk\Dictator;
 
+use BoxUk\Dictator\Region\CouldNotImposeRegionException;
+use BoxUk\Dictator\Region\InvalidRegionException;
+use BoxUk\Dictator\State\InvalidStateException;
+use BoxUk\Dictator\State\State;
 use cli\Colors;
 use Mustangostang\Spyc;
 use WP_CLI;
+use WP_CLI\ExitException;
 use WP_CLI\Formatter;
 use WP_CLI_Command;
 
@@ -44,7 +49,7 @@ class Command extends WP_CLI_Command
      * @param array $args Args.
      * @param array $assocArgs Assoc Args.
      *
-     * @throws \WP_CLI\ExitException Exits on error, such as bad state supplied.
+     * @throws ExitException Exits on uncaught error.
      */
     public function export(array $args, array $assocArgs): void
     {
@@ -54,16 +59,26 @@ class Command extends WP_CLI_Command
             WP_CLI::confirm('Are you sure you want to overwrite the existing state file?');
         }
 
-        $stateObj = Dictator::getStateObj($state);
-        if (! $stateObj) {
-            WP_CLI::error('Invalid state supplied.');
+        try {
+            $stateObj = Dictator::getStateObj($state);
+        } catch (InvalidStateException $e) {
+            WP_CLI::error(sprintf('Invalid state "%s" supplied.', $state));
+            exit; // The error above will cause it to exit, but to help our IDE out.
         }
 
         $limitedRegions = ! empty($assocArgs['regions']) ? explode(',', $assocArgs['regions']) : [];
 
         // Build the state's data.
         $stateData = ['state' => $state];
-        foreach ($stateObj->getRegions() as $regionObj) {
+
+        try {
+            $regions = $stateObj->getRegions();
+        } catch (InvalidRegionException $e) {
+            WP_CLI::error(sprintf('Invalid region configured within "%s".', $state));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
+
+        foreach ($regions as $regionObj) {
             $regionName = $stateObj->getRegionName($regionObj);
 
             if ($limitedRegions && ! in_array($regionName, $limitedRegions, true)) {
@@ -93,6 +108,7 @@ class Command extends WP_CLI_Command
      *
      * @param array $args Args.
      * @param array $assocArgs Assoc args.
+     * @throws ExitException Exits on uncaught error.
      */
     public function impose(array $args, array $assocArgs): void
     {
@@ -102,11 +118,23 @@ class Command extends WP_CLI_Command
 
         $this->validateStateData($yaml);
 
-        $stateObj = Dictator::getStateObj($yaml['state'], $yaml);
+        try {
+            $stateObj = Dictator::getStateObj($yaml['state'], $yaml);
+        } catch (InvalidStateException $e) {
+            WP_CLI::error(sprintf('Invalid state "%s" supplied.', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
 
         $limitedRegions = ! empty($assocArgs['regions']) ? explode(',', $assocArgs['regions']) : [];
 
-        foreach ($stateObj->getRegions() as $regionObj) {
+        try {
+            $regions = $stateObj->getRegions();
+        } catch (InvalidRegionException $e) {
+            WP_CLI::error(sprintf('Invalid region configured within "%s".', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
+
+        foreach ($regions as $regionObj) {
             $regionName = $stateObj->getRegionName($regionObj);
 
             if ($limitedRegions && ! in_array($regionName, $limitedRegions, true)) {
@@ -124,15 +152,17 @@ class Command extends WP_CLI_Command
             foreach ($differences as $slug => $difference) {
                 $this->showDifference($slug, $difference);
 
-                $to_impose = Utils::arrayDiffRecursive($difference['dictated'], $difference['current']);
-                $ret       = $regionObj->impose($slug, $difference['dictated']);
-                if (is_wp_error($ret)) {
-                    WP_CLI::warning($ret->get_error_message());
+                $toImpose = Utils::arrayDiffRecursive($difference['dictated'], $difference['current']);
+
+                try {
+                    $regionObj->impose($slug, $toImpose);
+                } catch (CouldNotImposeRegionException $e) {
+                    WP_CLI::warning($e->getMessage());
                 }
             }
         }
 
-        WP_CLI::success('The Dictator has imposed upon the State of WordPress.');
+        WP_CLI::success('Dictator has imposed upon the State of WordPress.');
     }
 
     /**
@@ -149,11 +179,24 @@ class Command extends WP_CLI_Command
 
         $items = [];
         foreach ($states as $name => $attributes) {
-            $stateObj = new $attributes['class']();
-            $regions   = implode(',', array_keys($stateObj->getRegions()));
+            try {
+                $stateObj = Dictator::getStateObj($name);
+            } catch (InvalidStateException $e) {
+                WP_CLI::warning(sprintf('Invalid state "%s" supplied.', $name));
+                $stateObj = null;
+            }
+
+            try {
+                $regions = $stateObj instanceof State ? $stateObj->getRegions() : [];
+            } catch (InvalidRegionException $e) {
+                WP_CLI::warning(sprintf('Invalid region configured within "%s".', $name));
+                $regions = [];
+            }
+
+            $regions = implode(',', array_keys($regions));
 
             $items[] = (object) [
-                'state'   => $name,
+                'state' => $name,
                 'regions' => $regions,
             ];
         }
@@ -176,6 +219,8 @@ class Command extends WP_CLI_Command
      *
      * @param array $args Args.
      * @param array $assocArgs Assoc args.
+     *
+     * @throws ExitException If the file doesn't exist or is empty.
      */
     public function compare(array $args, array $assocArgs): void
     {
@@ -185,9 +230,21 @@ class Command extends WP_CLI_Command
 
         $this->validateStateData($yaml);
 
-        $stateObj = Dictator::getStateObj($yaml['state'], $yaml);
+        try {
+            $stateObj = Dictator::getStateObj($yaml['state'], $yaml);
+        } catch (InvalidStateException $e) {
+            WP_CLI::error(sprintf('Invalid state "%s" supplied.', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
 
-        foreach ($stateObj->getRegions() as $regionName => $regionObj) {
+        try {
+            $regions = $stateObj->getRegions();
+        } catch (InvalidRegionException $e) {
+            WP_CLI::error(sprintf('Invalid region configured within "%s".', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
+
+        foreach ($regions as $regionName => $regionObj) {
             if ($regionObj->isUnderAccord()) {
                 continue;
             }
@@ -214,6 +271,8 @@ class Command extends WP_CLI_Command
      *
      * @param array $args Args.
      * @param array $assocArgs Assoc args.
+     *
+     * @throws ExitException If the file doesn't exist or is empty.
      */
     public function validate(array $args, array $assocArgs): void
     {
@@ -230,7 +289,10 @@ class Command extends WP_CLI_Command
      * Load a given Yaml state file
      *
      * @param string $file Filename to load state from.
+     *
      * @return array
+     *
+     * @throws ExitException If the file doesn't exist or is empty.
      */
     private function loadStateFile(string $file): array
     {
@@ -250,21 +312,37 @@ class Command extends WP_CLI_Command
      * Validate the provided state file against each region's schema.
      *
      * @param array $yaml Data from the state file.
+     *
      * @return void
+     *
+     * @throws ExitException If the state is invalid.
      */
     private function validateStateData(array $yaml): void
     {
         if (empty($yaml['state']) || ! Dictator::isValidState($yaml['state'])) {
             WP_CLI::error('Incorrect state.');
+            exit; // The error above will cause it to exit, but to help our IDE out.
         }
 
         $yamlData = $yaml;
         unset($yamlData['state']);
 
-        $stateObj = Dictator::getStateObj($yaml['state'], $yamlData);
+        try {
+            $stateObj = Dictator::getStateObj($yaml['state'], $yamlData);
+        } catch (InvalidStateException $e) {
+            WP_CLI::error(sprintf('Invalid state "%s" supplied.', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
+
+        try {
+            $regions = $stateObj->getRegions();
+        } catch (InvalidRegionException $e) {
+            WP_CLI::error(sprintf('Invalid region configured within "%s".', $yaml['state']));
+            exit; // The error above will cause it to exit, but to help our IDE out.
+        }
 
         $hasErrors = false;
-        foreach ($stateObj->getRegions() as $region) {
+        foreach ($regions as $region) {
             $validator = new Validator($region);
             if (! $validator->isValidStateData()) {
                 foreach ($validator->getStateDataErrors() as $errorMessage) {
@@ -287,9 +365,7 @@ class Command extends WP_CLI_Command
      */
     private function writeStateFile(array $stateData, string $file): void
     {
-        $fileData = Spyc::YAMLDump($stateData, 2, 0);
-        // Remove prepended "---\n" from output of the above call.
-        $fileData = substr($fileData, 4);
+        $fileData = Spyc::YAMLDump($stateData, 2, 0, true);
         file_put_contents($file, $fileData); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
     }
 
@@ -297,7 +373,7 @@ class Command extends WP_CLI_Command
      * Visually depict the difference between "dictated" and "current"
      *
      * @param string $slug Slug.
-     * @param array  $difference Difference to show.
+     * @param array $difference Difference to show.
      * @return void
      */
     private function showDifference(string $slug, array $difference): void
@@ -307,11 +383,9 @@ class Command extends WP_CLI_Command
         // Data already exists within WordPress.
         if (! empty($difference['current'])) {
             $this->nestedLine($slug . ': ');
-
             $this->recursivelyShowDifference($difference['dictated'], $difference['current']);
         } else {
             $this->addLine($slug . ': ');
-
             $this->recursivelyShowDifference($difference['dictated']);
         }
 
@@ -329,7 +403,7 @@ class Command extends WP_CLI_Command
     {
         $this->outputNestingLevel++;
 
-        if (is_array($dictated) && $this->isAssocArray($dictated)) {
+        if (is_array($dictated) && Utils::isAssocArray($dictated)) {
             foreach ($dictated as $key => $value) {
                 if (is_array($value)) {
                     $newCurrent = $current[$key] ?? null;
@@ -385,7 +459,7 @@ class Command extends WP_CLI_Command
     /**
      * Output a line that's appropriately nested
      *
-     * @param string     $line Line to show.
+     * @param string $line Line to show.
      * @param mixed|bool $change Whether to display green or red. 'add' for green, 'remove' for red.
      */
     private function nestedLine(string $line, $change = false): void
@@ -405,20 +479,9 @@ class Command extends WP_CLI_Command
 
         $spaces = ($this->outputNestingLevel * 2) + 2;
         if ($color && $label) {
-            $line   = Colors::colorize("{$color}{$label}") . $line . Colors::colorize('%n');
+            $line = Colors::colorize("{$color}{$label}") . $line . Colors::colorize('%n');
             $spaces -= 2;
         }
         WP_CLI::line(str_pad(' ', $spaces) . $line);
-    }
-
-    /**
-     * Whether this is an associative array
-     *
-     * @param array $array Array to check.
-     * @return bool
-     */
-    private function isAssocArray(array $array): bool
-    {
-        return array_keys($array) !== range(0, count($array) - 1);
     }
 }

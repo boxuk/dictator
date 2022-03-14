@@ -11,59 +11,71 @@ use BoxUk\Dictator\Utils;
  */
 class NetworkSites extends Region
 {
+    private const SITES_LOOKUP_BATCH_SIZE = 200;
+
     /**
      * Schema config.
      *
      * @var array $schema
      */
     protected array $schema = [
-        '_type'         => 'prototype',
+        '_type' => 'prototype',
         '_get_callback' => 'getSites',
-        '_prototype'    => [
-            '_type'     => 'array',
+        '_prototype' => [
+            '_type' => 'array',
             '_children' => [
-                'custom_domain'   => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'custom_domain' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'title'           => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'title' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'description'     => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'description' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'active_theme'    => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'active_theme' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'active_plugins'  => [
-                    '_type'         => 'array',
-                    '_required'     => false,
+                'active_plugins' => [
+                    '_type' => 'array',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'users'           => [
-                    '_type'         => 'array',
-                    '_required'     => false,
+                'users' => [
+                    '_type' => 'array',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
                 'timezone_string' => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
-                'WPLANG'          => [
-                    '_type'         => 'text',
-                    '_required'     => false,
+                'WPLANG' => [
+                    '_type' => 'text',
+                    '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
             ],
         ],
+    ];
+
+    /**
+     * Correct core's confusing option names.
+     *
+     * @var array $optionsMap
+     */
+    protected array $optionsMap = [
+        'title' => 'blogname',
+        'description' => 'blogdescription',
     ];
 
     /**
@@ -88,11 +100,11 @@ class NetworkSites extends Region
         // Check each declared site in state data against WordPress.
         foreach ($this->getImposedData() as $siteLabel => $siteData) {
             $customDomain = $siteData['custom_domain'] ?? '';
-            $siteSlug     = $this->getSiteSlug(get_current_site(), $siteLabel, $customDomain);
-            $siteResult   = $this->getSiteDifference($siteSlug, $siteData);
+            $siteSlug = $this->getSiteSlug(get_current_site(), $siteLabel, $customDomain);
+            $siteResult = $this->getSiteDifference($siteSlug, $siteData);
 
             if (! empty($siteResult)) {
-                $this->differences[ $siteLabel ] = $siteResult;
+                $this->differences[$siteLabel] = $siteResult;
             }
         }
 
@@ -103,35 +115,30 @@ class NetworkSites extends Region
      * Impose some state data onto a region
      *
      * @param string $key Site slug.
-     * @param array  $value Site data.
-     * @return bool|\WP_Error
+     * @param array $value Site data.
+     *
+     * @throws CouldNotImposeRegionException If the region could not be imposed.
      */
-    public function impose(string $key, $value)
+    public function impose(string $key, $value): void
     {
         $customDomain = $value['custom_domain'] ?? '';
-        $siteSlug     = $this->getSiteSlug(get_current_site(), $key, $customDomain);
+        $siteSlug = $this->getSiteSlug(get_current_site(), $key, $customDomain);
 
         $site = $this->getSite($siteSlug);
         if (! $site) {
             $site = $this->createSite($key, $value);
             if (is_wp_error($site)) {
-                return $site;
+                throw new CouldNotImposeRegionException($site->get_error_message());
             }
         }
 
         switch_to_blog($site->blog_id);
         foreach ($value as $field => $singleValue) {
+            if (array_key_exists($field, $this->optionsMap)) {
+                $field = $this->optionsMap[$field];
+            }
+
             switch ($field) {
-
-                case 'title':
-                case 'description':
-                    $map = [
-                        'title'       => 'blogname',
-                        'description' => 'blogdescription',
-                    ];
-                    update_option($map[ $field ], $singleValue);
-                    break;
-
                 case 'active_theme':
                     if ($singleValue !== get_option('stylesheet')) {
                         switch_theme($singleValue);
@@ -172,8 +179,6 @@ class NetworkSites extends Region
             }
         }
         restore_current_blog();
-
-        return true;
     }
 
     /**
@@ -188,7 +193,7 @@ class NetworkSites extends Region
         }
 
         $args  = [
-            'limit'  => 200,
+            'limit' => self::SITES_LOOKUP_BATCH_SIZE,
             'offset' => 0,
         ];
         $sites = [];
@@ -197,16 +202,17 @@ class NetworkSites extends Region
         }
         do {
             $sitesResults = get_sites($args);
-            $sites         = array_merge($sites, $sitesResults);
+            $sites += $sitesResults;
 
             $args['offset'] += $args['limit'];
         } while ($sitesResults);
 
         $this->sites = [];
         foreach ($sites as $site) {
-            $siteSlug                 = $this->getSiteSlug($site);
-            $this->sites[ $siteSlug ] = $site;
+            $siteSlug = $this->getSiteSlug($site);
+            $this->sites[$siteSlug] = $site;
         }
+
         return array_keys($this->sites);
     }
 
@@ -219,24 +225,22 @@ class NetworkSites extends Region
     protected function getSiteValue(string $key)
     {
         $siteSlug = $this->currentSchemaAttributeParents[0];
-        $site      = $this->getSite($siteSlug);
+        $site = $this->getSite($siteSlug);
 
         switch_to_blog($site->blog_id);
+
+        if (array_key_exists($key, $this->optionsMap)) {
+            $key = $this->optionsMap[$key];
+        }
 
         switch ($key) {
 
             case 'custom_domain':
                 $value = $site->domain ?? '';
                 break;
-            case 'title':
-            case 'description':
+
             case 'active_theme':
-                $map   = [
-                    'title'        => 'blogname',
-                    'description'  => 'blogdescription',
-                    'active_theme' => 'stylesheet',
-                ];
-                $value = get_option($map[ $key ]);
+                $value = get_option('stylesheet');
                 break;
 
             case 'active_plugins':
@@ -271,47 +275,42 @@ class NetworkSites extends Region
      *
      * @param string $siteSlug Site slug.
      * @param array  $siteData Site data.
-     * @return array|false
+     * @return array
      */
-    protected function getSiteDifference(string $siteSlug, array $siteData)
+    protected function getSiteDifference(string $siteSlug, array $siteData): array
     {
         $siteResult = [
             'dictated' => $siteData,
-            'current'  => [],
+            'current' => [],
         ];
 
         $sites = $this->getCurrentData();
 
         // If there wasn't a matched site, the site must not exist.
-        if (empty($sites[ $siteSlug ])) {
+        if (empty($sites[$siteSlug])) {
             return $siteResult;
         }
 
-        $siteResult['current'] = $sites[ $siteSlug ];
+        $siteResult['current'] = $sites[$siteSlug];
 
         if (Utils::arrayDiffRecursive($siteResult['dictated'], $siteResult['current'])) {
             return $siteResult;
         }
 
-        return false;
+        return [];
     }
 
     /**
      * Get a site by its slug
      *
      * @param string $siteSlug Site slug.
-     * @return \WP_Site|false
+     * @return \WP_Site|null
      */
-    protected function getSite(string $siteSlug)
+    protected function getSite(string $siteSlug): ?\WP_Site
     {
-
         // Maybe prime the cache.
         $this->getSites();
-        if (! empty($this->sites[ $siteSlug ])) {
-            return $this->sites[ $siteSlug ];
-        }
-
-        return false;
+        return ! empty($this->sites[$siteSlug]) ? $this->sites[$siteSlug] : null;
     }
 
     /**
@@ -319,16 +318,16 @@ class NetworkSites extends Region
      *
      * @param string $key Key of site.
      * @param mixed  $value Value.
-     * @return \WP_Site|\WP_Error|bool
+     * @return \WP_Site|\WP_Error
      */
     protected function createSite(string $key, $value)
     {
         global $wpdb, $current_site;
 
-        $base    = $key;
-        $title   = ucfirst($base);
+        $base = $key;
+        $title = ucfirst($base);
         $network = $current_site;
-        $meta    = $value;
+        $meta = $value;
         if (! $network) {
             $networks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->site WHERE id = %d", 1)); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             if (! empty($networks)) {
@@ -345,12 +344,12 @@ class NetworkSites extends Region
         if (! is_subdomain_install()) {
             $subdirectoryReservedNames = apply_filters('subdirectory_reserved_names', [ 'page', 'comments', 'blog', 'files', 'feed' ]);
             if (in_array($base, $subdirectoryReservedNames, true)) {
-                return new \WP_Error('reserved-word', 'The following words are reserved and cannot be used as blog names: ' . implode(', ', $subdirectory_reserved_names));
+                return new \WP_Error('reserved-word', 'The following words are reserved and cannot be used as blog names: ' . implode(', ', $subdirectoryReservedNames));
             }
         }
 
         if (is_subdomain_install()) {
-            $path   = '/';
+            $path = '/';
             $prefix = '';
             if ($base !== '') {
                 $prefix = $base . '.';
@@ -358,22 +357,22 @@ class NetworkSites extends Region
             $newDomain = $prefix . preg_replace('|^www\.|', '', $network->domain);
         } else {
             $newDomain = $network->domain;
-            $path      = '/' . trim($base, '/') . '/';
+            $path = '/' . trim($base, '/') . '/';
         }
 
         // Custom domain trumps all.
         if (! empty($value['custom_domain'])) {
             $newDomain = $value['custom_domain'];
-            $path      = '/';
+            $path = '/';
             unset($value['custom_domain']);
         }
 
-        $userId      = 0;
+        $userId = 0;
         $superAdmins = get_super_admins();
         if (! empty($superAdmins) && is_array($superAdmins)) {
             // Just get the first one.
             $superLogin = $superAdmins[0];
-            $superUser  = get_user_by('login', $superLogin);
+            $superUser = get_user_by('login', $superLogin);
             if ($superUser) {
                 $userId = $superUser->ID;
             }
@@ -390,7 +389,7 @@ class NetworkSites extends Region
         // Reset our internal cache.
         unset($this->sites);
 
-        return $this->getSite($this->getSiteSlug(get_site($id)));
+        return $this->getSite($this->getSiteSlug(get_site($id))) ?? new \WP_Error('site-not-found', 'Site not found.');
     }
 
     /**
@@ -398,17 +397,17 @@ class NetworkSites extends Region
      * we can pass a custom domain which overwrites the domain and 'resets' the path.
      *
      * @param \WP_Site | \WP_Network $siteOrNetwork A site or network object.
-     * @param string                 $key A key to overwrite path if not using a custom domain.
-     * @param string                 $customDomain A custom domain to overwrite the domain and reset the path.
+     * @param string $key A key to overwrite path if not using a custom domain.
+     * @param string $customDomain A custom domain to overwrite the domain and reset the path.
      */
     protected function getSiteSlug($siteOrNetwork, string $key = '', string $customDomain = ''): string
     {
         $domain = $siteOrNetwork->domain;
-        $path   = $key !== '' ? '/' . $key : $siteOrNetwork->path;
+        $path = $key !== '' ? '/' . $key : $siteOrNetwork->path;
 
         if (! empty($customDomain) && $domain !== $customDomain) {
             $domain = $customDomain;
-            $path   = '/';
+            $path = '/';
         }
 
         if ($path !== '/' && is_subdomain_install()) {
