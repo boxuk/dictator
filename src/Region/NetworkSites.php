@@ -49,6 +49,11 @@ class NetworkSites extends Region
                     '_required' => false,
                     '_get_callback' => 'getSiteValue',
                 ],
+                'terms' => [
+                    '_type' => 'array',
+                    '_required' => false,
+                    '_get_callback' => 'getSiteValue',
+                ],
                 'users' => [
                     '_type' => 'array',
                     '_required' => false,
@@ -167,6 +172,20 @@ class NetworkSites extends Region
 
                     break;
 
+                case 'terms' :
+                    foreach ($singleValue as $taxName => $taxTerms) {
+                        foreach ( $taxTerms as $termSlug => $termArgs ) {
+                            $termArgs['slug'] = $termSlug;
+
+                            if (! array_key_exists('name', $termArgs)) {
+                                continue;
+                            }
+                            $termName = $termArgs['name'];
+                            wp_insert_term($termName, $taxName, $termArgs);
+                        }
+                    }
+                    break;
+
                 case 'WPLANG':
                     add_network_option($site->blog_id, $field, $singleValue);
                     break;
@@ -253,6 +272,35 @@ class NetworkSites extends Region
                 $siteUsers = get_users();
                 foreach ($siteUsers as $siteUser) {
                     $value[ $siteUser->user_login ] = array_shift($siteUser->roles);
+                }
+                break;
+
+            case 'terms':
+                $value = [];
+                $site_taxonomies = get_taxonomies();
+
+                foreach ($site_taxonomies as $site_taxonomy) {
+                    $taxonomy_values = [];
+                    $taxonomy_terms = get_terms([$site_taxonomy], ['hide_empty' => 0]);
+                    if (is_wp_error($taxonomy_terms)) {
+                        $value[$site_taxonomy] = $taxonomy_values;
+                        continue;
+                    }
+
+                    foreach($taxonomy_terms as $taxonomy_term) {
+                        // Skip over 'Uncategorized' as this gets added by default.
+                        if ('uncategorized' === $taxonomy_term->slug) {
+                            continue;
+                        }
+
+                        $taxonomy_values[$taxonomy_term->slug] = [
+                            'name' => wp_specialchars_decode($taxonomy_term->name),
+                            'parent' => $taxonomy_term->parent,
+                            'description' => $taxonomy_term->description,
+                        ];
+                    }
+
+                    $value[$site_taxonomy] = $taxonomy_values;
                 }
                 break;
 
