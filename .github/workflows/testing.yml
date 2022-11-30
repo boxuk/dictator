@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1']
+        php: ['8.0', '8.1']
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1']
+        php: ['8.0', '8.1']
         wp: ['latest']
         mysql: ['8.0']
         test: ["composer behat || composer behat-rerun"]
