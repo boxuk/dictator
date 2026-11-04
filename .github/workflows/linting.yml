@@ -12,8 +12,10 @@ jobs:
 
       - name: Set up PHP environment
         uses: shivammathur/setup-php@v2
+        env:
+          update: true
         with:
-          php-version: '8.0'
+          php-version: '8.2'
           tools: cs2pr, composer:v2
 
       - name: Get Composer cache Directory
@@ -52,8 +54,10 @@ jobs:
 
       - name: Set up PHP environment
         uses: shivammathur/setup-php@v2
+        env:
+          update: true
         with:
-          php-version: '8.0'
+          php-version: '8.2'
           tools: cs2pr, composer:v2
 
       - name: Get Composer cache Directory
