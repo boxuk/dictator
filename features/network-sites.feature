@@ -85,6 +85,9 @@ Feature: Network Sites Region
           WPLANG: en_GB
       """
 
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
+
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
 
@@ -134,6 +137,9 @@ Feature: Network Sites Region
           WPLANG: en_GB
       """
 
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
+
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
 
@@ -169,6 +175,9 @@ Feature: Network Sites Region
           timezone_string: Europe/London
           WPLANG: en_GB
       """
+
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
