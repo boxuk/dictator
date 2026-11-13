@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dictator controls the State of WordPress with WP-CLI.
  */

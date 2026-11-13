@@ -8,38 +8,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up PHP environment
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
           tools: cs2pr, composer:v2
 
       - name: Get Composer cache Directory
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"          
+          echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Use Composer cache
-        uses: actions/cache@master
+        uses: actions/cache@v4
         with:
           path: ${{ steps['composer-cache'].outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-8.2-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-composer-          
+            ${{ runner.os }}-composer-8.2-
 
       - name: Install Composer dependencies & cache dependencies
         run: composer update --prefer-stable --prefer-dist --no-progress --no-interaction
 
-      - name: Check existence of vendor/bin/parallel-lint file
-        id: check_linter_file
-        uses: andstor/file-existence-action@v1
-        with:
-          files: "vendor/bin/parallel-lint"
-
       - name: Run Linter
-        if: steps.check_linter_file.outputs.files_exists == 'true'
         run: vendor/bin/parallel-lint -j 10 . --exclude vendor --exclude tools --checkstyle | cs2pr
 
   php-cs-fixer:
@@ -48,36 +41,29 @@ jobs:
 
     steps:
       - name: Check out source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up PHP environment
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
           tools: cs2pr, composer:v2
 
       - name: Get Composer cache Directory
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"          
+          echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Use Composer cache
-        uses: actions/cache@master
+        uses: actions/cache@v4
         with:
           path: ${{ steps['composer-cache'].outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-8.2-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-composer-          
+            ${{ runner.os }}-composer-8.2-
 
-      - name: Install Composer dependencies & cache dependencies
-        run: composer update --prefer-stable --prefer-dist --no-progress --no-interaction
+      - name: Install PHP-CS-Fixer
+        run: composer update -W --working-dir=tools/php-cs-fixer --prefer-stable --prefer-dist --no-progress --no-interaction
 
-      - name: Check existence of tools/php-cs-fixer/vendor/bin/php-cs-fixer file
-        id: check_php-cs-fixer_binary_file
-        uses: andstor/file-existence-action@v1
-        with:
-          files: "tools/php-cs-fixer/vendor/bin/php-cs-fixer"
-
-      - name: Run PHPCS
-        if: steps.check_php-cs-fixer_binary_file.outputs.files_exists == 'true'
-        run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --diff --dry-run | cs2pr
+      - name: Run PHP-CS-Fixer
+        run: tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --diff --dry-run --format=checkstyle | cs2pr

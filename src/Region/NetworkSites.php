@@ -172,9 +172,9 @@ class NetworkSites extends Region
 
                     break;
 
-                case 'terms' :
+                case 'terms':
                     foreach ($singleValue as $taxName => $taxTerms) {
-                        foreach ( $taxTerms as $termSlug => $termArgs ) {
+                        foreach ($taxTerms as $termSlug => $termArgs) {
                             $termArgs['slug'] = $termSlug;
 
                             if (! array_key_exists('name', $termArgs)) {
@@ -287,7 +287,7 @@ class NetworkSites extends Region
                         continue;
                     }
 
-                    foreach($taxonomy_terms as $taxonomy_term) {
+                    foreach ($taxonomy_terms as $taxonomy_term) {
                         // Skip over 'Uncategorized' as this gets added by default.
                         if ('uncategorized' === $taxonomy_term->slug) {
                             continue;

@@ -197,7 +197,7 @@ class SiteSettings extends Region
                     }
                     break;
 
-                // Boolean stored as 0 or 1.
+                    // Boolean stored as 0 or 1.
                 case 'blog_public':
                 case 'rss_use_excerpt':
                 case 'comments_notify':
@@ -205,7 +205,7 @@ class SiteSettings extends Region
                     update_option($key, (int) $value);
                     break;
 
-                // Boolean stored as 'open' or 'closed'.
+                    // Boolean stored as 'open' or 'closed'.
                 case 'default_comment_status':
                 case 'default_ping_status':
                     if ($value) {
