@@ -9,7 +9,7 @@ Feature: Network Sites Region
         enolagay:
           title: Enola Gay
           description: Just another B-29 Superfortress bomber
-          active_theme: p2
+          active_theme: twentytwentytwo
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
@@ -17,7 +17,7 @@ Feature: Network Sites Region
       """
 
     When I run `wp plugin install akismet --force`
-    And I run `wp theme install p2 --force`
+    And I run `wp theme install twentytwentytwo --force`
     Then STDOUT should not be empty
 
     When I run `wp language core install en_GB`
@@ -44,7 +44,7 @@ Feature: Network Sites Region
     When I run `wp --url=example.com/enolagay option get stylesheet`
     Then STDOUT should be:
       """
-      p2
+      twentytwentytwo
       """
 
     When I run `wp --url=example.com/enolagay plugin list --fields=name,status`
@@ -78,12 +78,15 @@ Feature: Network Sites Region
         enolagay:
           title: Enola Gay
           description: Just another B-39 Superfortress bomber
-          active_theme: p2
+          active_theme: twentytwentytwo
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
           WPLANG: en_GB
       """
+
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
@@ -119,7 +122,7 @@ Feature: Network Sites Region
         :
           title: Main site
           description: This is the main site with no subdomain required
-          active_theme: p2
+          active_theme: twentytwentytwo
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
@@ -127,12 +130,15 @@ Feature: Network Sites Region
         sub:
           title: Sub site
           description: This is the sub site with a subdomain of sub required
-          active_theme: p2
+          active_theme: twentytwentytwo
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
           WPLANG: en_GB
       """
+
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty
@@ -163,12 +169,15 @@ Feature: Network Sites Region
           custom_domain: enolagay.dev
           title: Enola Gay
           description: Just another B-29 Superfortress bomber
-          active_theme: p2
+          active_theme: twentytwentytwo
           active_plugins:
             - akismet/akismet.php
           timezone_string: Europe/London
           WPLANG: en_GB
       """
+
+    When I run `wp language core install en_GB`
+    Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
     Then STDOUT should not be empty

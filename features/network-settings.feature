@@ -13,13 +13,13 @@ Feature: Network Settings Region
         site_upload_space: 1000
         site_max_upload: 5000
         enabled_themes:
-          - p2
+          - twentytwentytwo
         active_plugins:
           - akismet/akismet.php
       """
 
     When I run `wp plugin install akismet --force`
-    And I run `wp theme install p2 --force`
+    And I run `wp theme install twentytwentytwo --force`
     Then STDOUT should not be empty
 
     When I run `wp dictator impose network-state.yml`
@@ -66,8 +66,8 @@ Feature: Network Settings Region
 
     When I run `wp theme list --fields=name,enabled`
     Then STDOUT should be a table containing rows:
-      | name     | enabled        |
-      | p2       | network        |
+      | name            | enabled |
+      | twentytwentytwo | network |
 
     When I run `wp plugin list --fields=name,status`
     Then STDOUT should be a table containing rows:
