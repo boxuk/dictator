@@ -16,7 +16,7 @@ Feature: Site Settings Region
         allow_pingbacks: false
         notify_comments: false
         notify_moderation: true
-        active_theme: p2
+        active_theme: twentytwenty
         active_plugins:
           - akismet/akismet.php
         show_on_front: page
@@ -27,7 +27,7 @@ Feature: Site Settings Region
       """
 
     When I run `wp plugin install akismet --force`
-    And I run `wp theme install p2 --force`
+    And I run `wp theme install twentytwenty --force`
     Then STDOUT should not be empty
 
     When I run `wp language core install en_GB`
@@ -72,7 +72,7 @@ Feature: Site Settings Region
     When I run `wp option get stylesheet`
     Then STDOUT should be:
       """
-      p2
+      twentytwenty
       """
 
     When I run `wp plugin list --fields=name,status`
